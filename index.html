@@ -25,18 +25,84 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Crewup",
-    "description": "A lab for people who build things together.",
-    "url": "https://crewup.dev/"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://crewup.dev/#org",
+        "name": "Crewup",
+        "url": "https://crewup.dev/",
+        "logo": "https://crewup.dev/favicon.svg",
+        "image": "https://crewup.dev/art/og.jpg",
+        "description": "A lab for people who build things together — collaboration feeds, a practices playbook, a reviewed toolbox and a plain-language glossary."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://crewup.dev/#site",
+        "name": "Crewup",
+        "url": "https://crewup.dev/",
+        "publisher": { "@id": "https://crewup.dev/#org" },
+        "inLanguage": "en",
+        "description": "A live feed of writing about collaboration, a playbook of practices that hold up, a reviewed toolbox, and a plain-language glossary."
+      },
+      {
+        "@type": "ItemList",
+        "name": "Sections",
+        "itemListElement": [
+          { "@type": "SiteNavigationElement", "position": 1, "name": "Feed", "description": "30 live sources on how teams build software together.", "url": "https://crewup.dev/feed" },
+          { "@type": "SiteNavigationElement", "position": 2, "name": "Board", "description": "Open posts — people who need help, and people available for work.", "url": "https://crewup.dev/board" },
+          { "@type": "SiteNavigationElement", "position": 3, "name": "Playbook", "description": "12 collaboration practices that hold up in real teams.", "url": "https://crewup.dev/playbook" },
+          { "@type": "SiteNavigationElement", "position": 4, "name": "Toolbox", "description": "30 tools grouped by the collaboration problem they solve. No affiliate links, no rankings.", "url": "https://crewup.dev/toolbox" },
+          { "@type": "SiteNavigationElement", "position": 5, "name": "Glossary", "description": "22 collaboration terms written out plainly.", "url": "https://crewup.dev/glossary" },
+          { "@type": "SiteNavigationElement", "position": 6, "name": "Sources", "description": "The full feed directory, with OPML export.", "url": "https://crewup.dev/sources" }
+        ]
+      }
+    ]
   }
   </script>
 </head>
 <body>
-  <div id="root"></div>
-  <noscript style="display:block;padding:40px;font-family:system-ui;color:#E8E6E3;background:#0D1117">
-    Crewup needs JavaScript to stream its feeds. The playbook and glossary content is in the page bundle.
-  </noscript>
+  <!--
+    Static shell. React's createRoot() clears #root on mount, so this is what
+    crawlers, link unfurlers and no-JS visitors get, and nothing more. It exists
+    because the app is a client-rendered SPA: without it the served HTML carries
+    no top-level heading and no landmarks, which is what an auditor reads.
+    Keep it in sync with the nav in App.jsx if sections are added or renamed.
+  -->
+  <div id="root">
+    <div style="min-height:100vh;padding:40px 24px;font-family:system-ui,sans-serif;color:#E8E6E3;background:#0D1117">
+      <nav aria-label="Sections">
+        <a href="/" style="color:#E8E6E3;font-weight:600;text-decoration:none">crewup</a>
+        &nbsp;·&nbsp;<a href="/feed" style="color:#8B949E">Feed</a>
+        &nbsp;·&nbsp;<a href="/board" style="color:#8B949E">Board</a>
+        &nbsp;·&nbsp;<a href="/playbook" style="color:#8B949E">Playbook</a>
+        &nbsp;·&nbsp;<a href="/toolbox" style="color:#8B949E">Toolbox</a>
+        &nbsp;·&nbsp;<a href="/glossary" style="color:#8B949E">Glossary</a>
+        &nbsp;·&nbsp;<a href="/sources" style="color:#8B949E">Sources</a>
+      </nav>
+      <main>
+        <h1 style="font-size:28px;margin:32px 0 8px">Crewup — a lab for people who build things together</h1>
+        <p style="max-width:60ch;color:#8B949E;line-height:1.6">
+          A live feed of writing about collaboration, a playbook of practices that
+          hold up, a reviewed toolbox, and a plain-language glossary.
+        </p>
+        <h2 style="font-size:18px;margin:28px 0 6px">Feed</h2>
+        <p style="max-width:60ch;color:#8B949E">30 live sources on how teams build software together, sorted by relevance or recency.</p>
+        <h2 style="font-size:18px;margin:24px 0 6px">Board</h2>
+        <p style="max-width:60ch;color:#8B949E">Open posts — people who need help on something, and people available for work.</p>
+        <h2 style="font-size:18px;margin:24px 0 6px">Playbook</h2>
+        <p style="max-width:60ch;color:#8B949E">12 collaboration practices that survive contact with a real team.</p>
+        <h2 style="font-size:18px;margin:24px 0 6px">Toolbox</h2>
+        <p style="max-width:60ch;color:#8B949E">30 tools grouped by the collaboration problem they solve, with an honest line on each. No affiliate links, no rankings.</p>
+        <h2 style="font-size:18px;margin:24px 0 6px">Glossary</h2>
+        <p style="max-width:60ch;color:#8B949E">22 terms that get thrown around in collaboration discussions, written out plainly.</p>
+        <noscript>
+          <p style="margin-top:28px;color:#8B949E">
+            The live feed needs JavaScript. Everything above is in the page itself.
+          </p>
+        </noscript>
+      </main>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
