@@ -21,7 +21,7 @@
    hash can't be used to follow someone across days. */
 async function hashIp(ip) {
   const day = new Date().toISOString().slice(0, 10);
-  const data = new TextEncoder().encode(`${ip}|${day}|collab`);
+  const data = new TextEncoder().encode(`${ip}|${day}|crewup`);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return [...new Uint8Array(digest)].slice(0, 8)
     .map((b) => b.toString(16).padStart(2, "0")).join("");

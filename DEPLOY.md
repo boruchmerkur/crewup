@@ -1,4 +1,4 @@
-# Deploying Collab → crewup.dev
+# Deploying Crewup → crewup.dev
 
 This folder is already a git repo with one commit. Nothing to initialize.
 
@@ -10,14 +10,14 @@ first push will be rejected as a non-fast-forward.
 Then, in this folder:
 
 ```bash
-git remote add origin https://github.com/YOURNAME/collab.git
+git remote add origin https://github.com/YOURNAME/crewup.git
 git branch -M main
 git push -u origin main
 ```
 
 ## 2. Connect it to Netlify
 
-Netlify → **Add new site → Import an existing project → GitHub → collab**
+Netlify → **Add new site → Import an existing project → GitHub → crewup**
 
 Netlify reads `netlify.toml` and fills these in automatically. Confirm they say:
 

@@ -1,4 +1,4 @@
-# Collab — Midjourney 8.2 Prompt Pack
+# Crewup — Midjourney 8.2 Prompt Pack
 
 Human element · backgrounds · motifs. Written for **V8.2**, which has been the
 default since 24 July 2026 — no version flag needed, every prompt routes there
@@ -13,7 +13,7 @@ Midjourney describes 8.2 as focused on aesthetics and personalization, aiming
 for images that are "more creative, bold, sophisticated, edgy and fresh," with
 fewer random low-quality generations.
 
-For most people that's an upgrade. **For this site it's a hazard.** Collab is
+For most people that's an upgrade. **For this site it's a hazard.** Crewup is
 restrained, near-black and technical. A model tuned toward bold and edgy will
 happily hand you teal-and-orange lens flares and dramatic rim lighting that will
 look ridiculous behind a feed reader.

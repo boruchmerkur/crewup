@@ -10,7 +10,7 @@
    carries on — analytics should never be able to break a page.
    ═══════════════════════════════════════════════════════════════ */
 
-const SITE = "collab";
+const SITE = "crewup";
 const ENDPOINT = "/api/beacon";
 
 /* One id per browser session. Not a cookie, not cross-site,
@@ -18,10 +18,10 @@ const ENDPOINT = "/api/beacon";
    tracking people. */
 function sessionId() {
   try {
-    let id = sessionStorage.getItem("collab:sid");
+    let id = sessionStorage.getItem("crewup:sid");
     if (!id) {
       id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-      sessionStorage.setItem("collab:sid", id);
+      sessionStorage.setItem("crewup:sid", id);
     }
     return id;
   } catch {

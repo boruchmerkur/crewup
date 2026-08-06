@@ -168,7 +168,7 @@ export function exportOPML() {
   ).join("\n");
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <opml version="2.0">
-  <head><title>Collab — collaboration feeds</title></head>
+  <head><title>Crewup — collaboration feeds</title></head>
   <body>
 ${body}
   </body>
@@ -176,7 +176,7 @@ ${body}
   const url = URL.createObjectURL(new Blob([xml], { type: "text/xml" }));
   const a = document.createElement("a");
   a.href = url;
-  a.download = "collab-feeds.opml";
+  a.download = "crewup-feeds.opml";
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -187,7 +187,7 @@ export function useSaved() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("collab:saved");
+      const raw = localStorage.getItem("crewup:saved");
       if (raw) setSaved(JSON.parse(raw));
     } catch {
       /* first visit, or storage blocked */
@@ -196,7 +196,7 @@ export function useSaved() {
 
   const write = (next) => {
     try {
-      localStorage.setItem("collab:saved", JSON.stringify(next));
+      localStorage.setItem("crewup:saved", JSON.stringify(next));
     } catch {
       /* session-only fallback */
     }

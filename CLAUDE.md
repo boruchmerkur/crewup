@@ -1,11 +1,11 @@
-# Collab — project context
+# Crewup — project context
 
 You are picking this up mid-flight. The site is **built and working**; what is
 not done is getting it deployed in a way that activates the server-side half.
 Read "Immediate task" first.
 
 Domain: **crewup.dev** (registered at GoDaddy, not yet pointed).
-Repo: `github.com/boruchmerkur/collab`.
+Repo: `github.com/boruchmerkur/crewup`.
 
 ---
 
@@ -23,7 +23,7 @@ third-party CDNs instead of the cached proxy.
 **The fix, in order:**
 
 1. Push this repo to GitHub if it isn't already there.
-2. Netlify → Add new site → Import an existing project → GitHub → `collab`.
+2. Netlify → Add new site → Import an existing project → GitHub → `crewup`.
    It reads `netlify.toml` and self-configures. Deploy.
 3. Set environment variables (table below).
 4. Point the domain (below).
@@ -94,13 +94,13 @@ is still ~8,000 words of real content. Don't "simplify" that away.
 
 ## Planned direction — read before adding features
 
-The owner intends Collab to become **core software that hosts multiple
+The owner intends Crewup to become **core software that hosts multiple
 communities**, not one site. The first sub-community is a network of Jewish AI
-coders, planned as a branch inside Collab rather than a separate deployment.
+coders, planned as a branch inside Crewup rather than a separate deployment.
 
 **The next structural task, agreed but not started:** add a `community` field to
 the board data model *before* real posts exist. Right now every post lands in
-one undifferentiated blob store key (`collab-board` → `posts`). Adding the field
+one undifferentiated blob store key (`crewup-board` → `posts`). Adding the field
 now is trivial; adding it after fifty posts means a migration and retroactively
 guessing where orphans belong.
 
@@ -117,7 +117,7 @@ Do this before promoting the board anywhere.
 ```
 src/
   data.js       ALL editable content: SOURCES, PLAYBOOK, TOOLS, GLOSSARY,
-                palette, collab keyword list, USE_IMG_PROXY toggle
+                palette, collaboration keyword list, USE_IMG_PROXY toggle
   App.jsx       shell, routing, all views, FeaturedFeed, keyboard shortcuts
   Board.jsx     board view + composer + enriched post cards
   Art.jsx       backdrop (aurora/grain/dots), canvas node field, FeedThumb,

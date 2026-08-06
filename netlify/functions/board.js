@@ -60,7 +60,7 @@ async function githubSnapshot(handle) {
   if (!/^[a-z0-9](?:[a-z0-9-]{0,37}[a-z0-9])?$/i.test(user)) return null;
 
   try {
-    const headers = { accept: "application/vnd.github+json", "user-agent": "collab-board" };
+    const headers = { accept: "application/vnd.github+json", "user-agent": "crewup-board" };
     const [uRes, rRes] = await Promise.all([
       fetch(`https://api.github.com/users/${user}`, { headers, signal: AbortSignal.timeout(6000) }),
       fetch(`https://api.github.com/users/${user}/repos?per_page=100&sort=updated`, { headers, signal: AbortSignal.timeout(6000) }),
@@ -109,7 +109,7 @@ async function ogSnapshot(url) {
   if (!target) return null;
   try {
     const res = await fetch(target, {
-      headers: { "user-agent": "Mozilla/5.0 (compatible; collab-board/1.0)" },
+      headers: { "user-agent": "Mozilla/5.0 (compatible; crewup-board/1.0)" },
       signal: AbortSignal.timeout(7000),
       redirect: "follow",
     });
@@ -148,7 +148,7 @@ async function ogSnapshot(url) {
 export default async (req, context) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
-  const store = getStore("collab-board");
+  const store = getStore("crewup-board");
 
   const read = async () => {
     try {

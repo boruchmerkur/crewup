@@ -68,7 +68,7 @@ export default async (request) => {
       headers: {
         // Some CDNs 403 without a UA. No visitor data is forwarded — this is
         // our own identity, not theirs, and no referrer is sent.
-        "user-agent": "collab-thumbnail-fetcher/1.0",
+        "user-agent": "crewup-thumbnail-fetcher/1.0",
         accept: "image/avif,image/webp,image/jpeg,image/png,image/gif,image/*",
       },
       redirect: "follow",

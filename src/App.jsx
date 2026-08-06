@@ -137,7 +137,7 @@ export default function App() {
       }}>
         <button onClick={() => setView("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, padding: 0 }}>
           <span style={{ width: 26, height: 26, borderRadius: 6, background: `linear-gradient(135deg,${C.violet},${C.mint})`, display: "grid", placeItems: "center", fontFamily: S.mono, fontWeight: 700, fontSize: 13, color: S.bg }}>C</span>
-          <span className="glow-text" style={{ fontFamily: S.disp, fontWeight: 600, fontSize: 17, letterSpacing: "-.02em" }}>collab</span>
+          <span className="glow-text" style={{ fontFamily: S.disp, fontWeight: 600, fontSize: 17, letterSpacing: "-.02em" }}>crewup</span>
         </button>
 
         <nav style={{ display: "flex", gap: 2, marginLeft: 14, flexWrap: "wrap" }}>
@@ -273,7 +273,7 @@ const ctlBtn = {
 /* ═══ HOME ═══ */
 
 const TYPING = [
-  "const room = await collab.open('sprint-14');",
+  "const room = await crewup.open('sprint-14');",
   "room.invite(['@mira', '@dan', '@leah']);",
   "room.on('push', c => notify(c.author, c.message));",
   "// everyone's here. let's ship.",
@@ -354,7 +354,7 @@ function Home({ setView, items, saved, live, loading }) {
         <div style={{ background: "#0B0F15", border: `1px solid ${S.line}`, borderRadius: 10, overflow: "hidden" }}>
           <div style={{ padding: "10px 16px", borderBottom: `1px solid ${S.line}`, display: "flex", alignItems: "center", gap: 8 }}>
             {["#F5534F", "#F5BF4F", "#28C840"].map((c) => <span key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
-            <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, marginLeft: 8 }}>collab — session:sprint-14</span>
+            <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, marginLeft: 8 }}>crewup — session:sprint-14</span>
           </div>
           <div style={{ padding: "20px", fontFamily: S.mono, fontSize: 13, lineHeight: 1.85, color: "#C9D1D9", minHeight: 150 }}>
             {lines.map((l, i) => (
@@ -821,7 +821,7 @@ const Empty = ({ title, body }) => (
 
 const Footer = () => (
   <footer style={{ borderTop: `1px solid ${S.line}`, padding: "28px", maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, fontSize: 12.5, color: S.faint }}>
-    <span><b style={{ fontFamily: S.disp, color: S.dim }}>collab</b> · a lab for people who build things together</span>
+    <span><b style={{ fontFamily: S.disp, color: S.dim }}>crewup</b> · a lab for people who build things together</span>
     <span style={{ fontFamily: S.mono }}>
       {SOURCES.length} feeds · {PLAYBOOK.length} practices · {TOOLS.reduce((n, g) => n + g.items.length, 0)} tools · {GLOSSARY.length} terms
     </span>

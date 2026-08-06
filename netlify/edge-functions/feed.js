@@ -45,7 +45,7 @@ export default async (request) => {
 
   try {
     const upstream = await fetch(parsed.toString(), {
-      headers: { "user-agent": "collab-feed-reader/1.0 (+https://crewup.dev)" },
+      headers: { "user-agent": "crewup-feed-reader/1.0 (+https://crewup.dev)" },
       signal: AbortSignal.timeout(9000),
     });
 

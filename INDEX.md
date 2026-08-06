@@ -1,4 +1,4 @@
-# INDEX — Collab
+# INDEX — Crewup
 
 Every file in this zip, what it does, and whether you'll ever need to open it.
 
@@ -72,7 +72,7 @@ spoofable. Fix belongs on the ingest side.
 
 | File | What it's for |
 |---|---|
-| `netlify.toml` | Build command, `LILY_SITE = "collab"`, functions directory, edge-function registrations, security headers. **No `[[redirects]]` rule** — deliberate; one would shadow `/api/lily` |
+| `netlify.toml` | Build command, `LILY_SITE = "crewup"`, functions directory, edge-function registrations, security headers. **No `[[redirects]]` rule** — deliberate; one would shadow `/api/lily` |
 | `public/_redirects` | SPA catch-all. Single source of truth — the duplicate in `netlify.toml` was removed because two catch-alls made shadowing likelier |
 | `public/_headers` | Immutable caching on `/assets/*`, no-cache on `index.html`, security headers |
 | `vite.config.js` | Build config. Rarely touched |
@@ -97,14 +97,12 @@ spoofable. Fix belongs on the ingest side.
 
 ## Before you go live
 
-Four placeholders still read `collab.example`:
+The `collab.example` placeholders are gone — `index.html`, `public/robots.txt`
+and `public/sitemap.xml` all point at `https://crewup.dev` now. `og:image` was
+pointing at `/og.jpg`, which does not exist; the file is `/art/og.jpg` and the
+tag now says so.
 
-1. `index.html` — canonical link and `og:image`
-2. `public/robots.txt` — the sitemap line
-3. `public/sitemap.xml` — all six `<loc>` values
-4. `README.md` — example URLs (cosmetic)
-
-Then set `DREAMSITE_ENDPOINT` and `DREAMSITE_TOKEN` in Netlify, and verify
+Set `DREAMSITE_ENDPOINT` and `DREAMSITE_TOKEN` in Netlify, and verify
 `POST /api/lily` returns 200 or 405.
 
 ---
