@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#0D1117;color:#E8E6E3;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+::selection{background:#7C3AED44}
+
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.row:hover{background:#12161F}
+.row:hover .t{color:#7C3AED}
+.chip:hover{border-color:#7C3AED;color:#E8E6E3}
+.card:hover{border-color:#2A3550;background:#12161F}
+.gloss:hover{background:#0F141C}
+input:focus{border-color:#7C3AED!important;outline:none}
+.sv{opacity:0;transition:opacity .15s}
+.row:hover .sv,.sv.on,.sv:focus{opacity:1}
+
+:focus-visible{outline:2px solid #7C3AED;outline-offset:2px}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#1C2333;border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:#2A3550}
+::-webkit-scrollbar-track{background:#0B0F15}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr!important}
+  .rail{position:static!important;order:2}
+  .hero{grid-template-columns:1fr!important}
+  .gloss{grid-template-columns:1fr!important;gap:6px!important}
+}
+@media(max-width:560px){
+  h1{font-size:36px!important}
+}
+
+/* ── Atmosphere ─────────────────────────────────────────── */
+.aurora{
+  position:absolute;border-radius:50%;filter:blur(90px);
+  will-change:transform;
+}
+.aurora.a1{
+  width:60vw;height:60vw;max-width:820px;max-height:820px;
+  top:-22vw;left:-12vw;
+  background:radial-gradient(circle,rgba(124,58,237,.20),transparent 68%);
+  animation:drift1 34s ease-in-out infinite alternate;
+}
+.aurora.a2{
+  width:46vw;height:46vw;max-width:640px;max-height:640px;
+  top:8vw;right:-14vw;
+  background:radial-gradient(circle,rgba(52,211,153,.13),transparent 68%);
+  animation:drift2 44s ease-in-out infinite alternate;
+}
+@keyframes drift1{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(7vw,5vw,0) scale(1.14)}}
+@keyframes drift2{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-6vw,8vw,0) scale(1.1)}}
+
+/* Only appears if the MJ tile has been dropped into public/art/ */
+.mj-texture{
+  position:absolute;inset:0;
+  background-image:url('/art/texture.jpg');
+  background-repeat:repeat;background-size:512px;
+  opacity:.04;mix-blend-mode:overlay;
+}
+
+/* Everything above the backdrop */
+#root{position:relative;z-index:1}
+
+/* Content-side polish */
+.card{position:relative;overflow:hidden}
+.card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(140% 100% at 0% 0%,rgba(124,58,237,.07),transparent 55%);
+  opacity:0;transition:opacity .25s;
+}
+.card:hover::after{opacity:1}
+
+.row{position:relative}
+.row::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(to bottom,transparent,#7C3AED,transparent);
+  opacity:0;transition:opacity .2s;
+}
+.row:hover::before{opacity:.7}
+
+.glow-text{
+  background:linear-gradient(100deg,#E8E6E3 20%,#A78BFA 50%,#E8E6E3 80%);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 7s linear infinite;
+}
+@keyframes shimmer{to{background-position:200% center}}
+
+.lift{transition:transform .2s cubic-bezier(.2,.8,.3,1)}
+.lift:hover{transform:translateY(-2px)}
+
+@media(prefers-reduced-motion:reduce){
+  .aurora,.glow-text{animation:none!important}
+}
+
+@keyframes sweep{from{background-position:200% 0}to{background-position:-200% 0}}
+.gridwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+
+@media(max-width:820px){
+  .feat{grid-template-columns:1fr!important}
+}

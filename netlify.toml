@@ -1,0 +1,42 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  LILY_SITE = "crewup"   # must match the domain's first label (crewup.dev)
+
+[functions]
+  directory = "netlify/functions"
+
+# Edge functions. Declared here so a CLI or git deploy registers them.
+[[edge_functions]]
+  path = "/api/feed"
+  function = "feed"
+
+[[edge_functions]]
+  path = "/api/beacon"
+  function = "beacon"
+
+[[edge_functions]]
+  path = "/api/img"
+  function = "img"
+
+# board (netlify/functions/board.js) claims /api/board via its own inline
+# `export const config`, same as lily-collect. Not re-declared here.
+#
+# lily-edge claims /* via its own inline `export const config` and is
+# deliberately NOT declared here — declaring it twice would double-register it.
+# lily-collect likewise claims /api/lily itself. Per the install notes there is
+# no [[redirects]] rule for /api/lily anywhere in this file.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# NOTE: the SPA catch-all lives in public/_redirects as the single source of
+# truth. It was previously duplicated here; two catch-alls made it much easier
+# for one of them to shadow /api/lily. Non-forced 200 rewrites do not shadow a
+# function that claims a path, so /api/lily resolves to lily-collect.
