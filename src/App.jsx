@@ -160,8 +160,7 @@ export default function App() {
         alignItems: "center", gap: 12, flexWrap: "wrap", position: "sticky", top: 0,
         background: "rgba(16,16,16,.94)", backdropFilter: "blur(12px)", zIndex: 30,
       }}>
-        <button onClick={() => setView("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, padding: 0 }}>
-          <span style={{ width: 26, height: 26, borderRadius: 6, background: `linear-gradient(135deg,${C.violet},${C.mint})`, display: "grid", placeItems: "center", fontFamily: S.mono, fontWeight: 700, fontSize: 13, color: S.bg }}>C</span>
+        <button onClick={() => setView("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 }}>
           <span className="glow-text" style={{ fontFamily: S.disp, fontWeight: 600, fontSize: 17, letterSpacing: "-.02em" }}>crewup</span>
         </button>
 
