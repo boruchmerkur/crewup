@@ -26,7 +26,10 @@ const VIEWS = [
 
 const S = {
   bg: "#0D1117", panel: "#0B0F15", line: "#1C2333", hov: "#12161F",
-  text: "#E8E6E3", dim: "#6B7694", faint: "#3B4252",
+  text: "#E8E6E3", dim: "#939AA8", faint: "#7E8494",
+  // Brand violet is 3.3:1 on the ground — fine as a fill or a dot,
+  // illegible as small text. Anything that is WORDS uses link instead.
+  link: "#A78BFA",
   mono: "'JetBrains Mono',ui-monospace,monospace",
   disp: "'Space Grotesk',sans-serif",
   body: "'Inter',-apple-system,sans-serif",
@@ -39,6 +42,11 @@ const validView = (p) => {
   const id = (p || "").replace(/^\/+|\/+$/g, "").replace(/^#\/?/, "") || "home";
   return VIEWS.some((v) => v.id === id) ? id : "home";
 };
+
+/* Tag colours double as label colours. Four of the five clear 4.5:1 on the
+   ground; brand violet manages 3.37 and has to be lightened when it is set
+   on words rather than on a dot. Dots and fills keep the real brand value. */
+const readable = (c) => (c === C.violet ? S.link : c);
 
 const pathFor = (id) => (id === "home" ? "/" : `/${id}`);
 
@@ -322,8 +330,8 @@ function Home({ setView, items, saved, live, loading }) {
   }, [li, ci]);
 
   const hi = (t = "") => t
-    .replace(/(const|await|new|return)/g, `<span style="color:${C.violet}">$1</span>`)
-    .replace(/(\/\/.*)/g, `<span style="color:#546178">$1</span>`)
+    .replace(/(const|await|new|return)/g, `<span style="color:${S.link}">$1</span>`)
+    .replace(/(\/\/.*)/g, `<span style="color:#7E8494">$1</span>`)
     .replace(/('(?:[^'\\]|\\.)*')/g, `<span style="color:${C.mint}">$1</span>`)
     .replace(/(\.[a-z]\w*)/g, `<span style="color:${C.amber}">$1</span>`);
 
@@ -332,18 +340,20 @@ function Home({ setView, items, saved, live, loading }) {
   const picks = useMemo(() => pickFeatured(items, 6), [items]);
   const hero = picks[0];
 
+  // Colour-coded to the same accents the feed uses for its tags, so the strip
+  // reads as part of the system rather than four grey numbers in a row.
   const stats = [
-    { n: SOURCES.length, l: "feeds tracked" },
-    { n: PLAYBOOK.length, l: "practices" },
-    { n: TOOLS.reduce((a, g) => a + g.items.length, 0), l: "tools reviewed" },
-    { n: GLOSSARY.length, l: "terms defined" },
+    { n: SOURCES.length, l: "feeds tracked", c: S.link },
+    { n: PLAYBOOK.length, l: "practices", c: C.mint },
+    { n: TOOLS.reduce((a, g) => a + g.items.length, 0), l: "tools reviewed", c: C.amber },
+    { n: GLOSSARY.length, l: "terms defined", c: C.sky },
   ];
 
   return (
     <div>
       <section style={{ maxWidth: 1280, margin: "0 auto", padding: "72px 28px 56px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }} className="hero">
         <div>
-          <div style={{ fontFamily: S.mono, fontSize: 11, color: C.violet, marginBottom: 22, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ fontFamily: S.mono, fontSize: 11, color: S.link, marginBottom: 22, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.mint, animation: "pulse 2s infinite" }} />
             {live > 0 ? `${live} sources streaming` : "connecting to sources…"}
           </div>
@@ -361,7 +371,7 @@ function Home({ setView, items, saved, live, loading }) {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, fontFamily: S.mono, fontSize: 11 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: hero.color, flexShrink: 0 }} />
-                <span style={{ color: hero.color }}>{hero.source}</span>
+                <span style={{ color: readable(hero.color) }}>{hero.source}</span>
                 {hero.author && <span style={{ color: S.faint }}>· {hero.author.slice(0, 32)}</span>}
                 <span style={{ color: S.faint }}>· {relTime(hero.date)}</span>
               </div>
@@ -374,7 +384,7 @@ function Home({ setView, items, saved, live, loading }) {
                   display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden",
                 }}>{hero.summary}</p>
               )}
-              <span style={{ fontFamily: S.mono, fontSize: 13, color: C.violet }}>read it <span className="arw">→</span></span>
+              <span style={{ fontFamily: S.mono, fontSize: 13, color: S.link }}>read it <span className="arw">→</span></span>
             </a>
           ) : loading ? (
             <div style={{ maxWidth: 460 }}>
@@ -385,7 +395,7 @@ function Home({ setView, items, saved, live, loading }) {
           ) : (
             <>
               <h1 style={{ fontFamily: S.disp, fontSize: 44, fontWeight: 700, lineHeight: 1.07, letterSpacing: "-.03em", marginBottom: 22 }}>
-                Code together.<br /><span style={{ color: C.violet }}>Ship faster.</span>
+                Code together.<br /><span style={{ color: S.link }}>Ship faster.</span>
               </h1>
               <p style={{ fontSize: 17, color: S.dim, lineHeight: 1.62, maxWidth: 430, marginBottom: 32 }}>
                 The feed is unreachable right now — the playbook, toolbox and glossary are still here.
@@ -419,7 +429,7 @@ function Home({ setView, items, saved, live, loading }) {
           <div style={{ padding: "20px", fontFamily: S.mono, fontSize: 13, lineHeight: 1.85, color: "#C9D1D9", minHeight: 150 }}>
             {lines.map((l, i) => (
               <div key={i} style={{ display: "flex", gap: 16 }}>
-                <span style={{ color: "#3B4252", width: 16, textAlign: "right", flexShrink: 0, userSelect: "none" }}>{i + 1}</span>
+                <span style={{ color: "#7E8494", width: 16, textAlign: "right", flexShrink: 0, userSelect: "none" }}>{i + 1}</span>
                 <span dangerouslySetInnerHTML={{ __html: hi(l) }} />
                 {i === li && <span style={{ display: "inline-block", width: 8, height: 17, marginTop: 3, background: blink ? C.violet : "transparent" }} />}
               </div>
@@ -435,7 +445,7 @@ function Home({ setView, items, saved, live, loading }) {
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 28px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))" }}>
           {stats.map((s, i) => (
             <div key={s.l} style={{ padding: "26px 4px", borderLeft: i ? `1px solid ${S.line}` : "none" }}>
-              <div style={{ fontFamily: S.disp, fontSize: 30, fontWeight: 600, letterSpacing: "-.02em" }}>{s.n}</div>
+              <div style={{ fontFamily: S.disp, fontSize: 30, fontWeight: 600, letterSpacing: "-.02em", color: s.c }}>{s.n}</div>
               <div style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, marginTop: 4 }}>{s.l}</div>
             </div>
           ))}
@@ -495,7 +505,7 @@ function FeaturedFeed({ picks = [], setView, loading }) {
         <Eyebrow flush>Latest</Eyebrow>
         <button onClick={() => setView("feed")} style={{
           marginLeft: "auto", background: "none", border: "none", cursor: "pointer",
-          color: C.violet, fontSize: 13, fontFamily: S.mono,
+          color: S.link, fontSize: 13, fontFamily: S.mono,
         }}>read the full feed →</button>
       </div>
 
@@ -557,14 +567,14 @@ const Meta = ({ it, tight }) => (
     marginBottom: tight ? 5 : 9, fontFamily: S.mono, fontSize: 10.5,
   }}>
     <span style={{ width: 5, height: 5, borderRadius: "50%", background: it.color, flexShrink: 0 }} />
-    <span style={{ color: it.color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.source}</span>
+    <span style={{ color: readable(it.color), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.source}</span>
     <span style={{ color: S.faint, marginLeft: "auto", flexShrink: 0 }}>{relTime(it.date)}</span>
   </div>
 );
 
 const Eyebrow = ({ children, flush }) => (
   <div style={{
-    fontFamily: S.mono, fontSize: 10, color: C.violet, letterSpacing: ".1em",
+    fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".1em",
     textTransform: "uppercase", marginBottom: flush ? 0 : 18,
   }}>{children}</div>
 );
@@ -600,7 +610,7 @@ function Playbook({ openCard, setOpenCard }) {
                 gridColumn: open ? "1 / -1" : "auto",
               }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontFamily: S.mono, fontSize: 10 }}>
-                <span style={{ color: C.violet, letterSpacing: ".07em", textTransform: "uppercase" }}>{p.family}</span>
+                <span style={{ color: S.link, letterSpacing: ".07em", textTransform: "uppercase" }}>{p.family}</span>
                 <span style={{ marginLeft: "auto", display: "flex", gap: 3 }}>
                   {[0, 1, 2].map((n) => (
                     <span key={n} style={{ width: 14, height: 3, borderRadius: 2, background: n < { low: 1, medium: 2, high: 3 }[p.heat] ? C.mint : S.line }} />
@@ -616,7 +626,7 @@ function Playbook({ openCard, setOpenCard }) {
                     <ol style={{ padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
                       {p.how.map((h, n) => (
                         <li key={n} style={{ fontSize: 13.5, color: S.dim, lineHeight: 1.55, display: "flex", gap: 10 }}>
-                          <span style={{ fontFamily: S.mono, fontSize: 11, color: C.violet, flexShrink: 0, paddingTop: 2 }}>{String(n + 1).padStart(2, "0")}</span>{h}
+                          <span style={{ fontFamily: S.mono, fontSize: 11, color: S.link, flexShrink: 0, paddingTop: 2 }}>{String(n + 1).padStart(2, "0")}</span>{h}
                         </li>
                       ))}
                     </ol>
@@ -650,7 +660,7 @@ function Toolbox() {
         body="Grouped by the collaboration problem they solve, with an honest line on each. No affiliate links, no rankings." />
       {TOOLS.map((g) => (
         <div key={g.cat} style={{ marginBottom: 36 }}>
-          <div style={{ fontFamily: S.mono, fontSize: 10, color: C.violet, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>{g.cat}</div>
+          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>{g.cat}</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 12 }}>
             {g.items.map((t) => (
               <a key={t.name} href={t.url} target="_blank" rel="noopener noreferrer" className="card lift"
@@ -697,7 +707,7 @@ function Sources({ status, items }) {
       }}>Download OPML ({SOURCES.length} feeds)</button>
       {TAGS.filter((t) => t !== "all").map((t) => (
         <div key={t} style={{ marginBottom: 30 }}>
-          <div style={{ fontFamily: S.mono, fontSize: 10, color: C.violet, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>{t}</div>
+          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>{t}</div>
           <div style={{ border: `1px solid ${S.line}`, borderRadius: 9, overflow: "hidden" }}>
             {SOURCES.filter((s) => s.tag === t).map((s, i, arr) => (
               <div key={s.id} style={{ padding: "12px 18px", display: "flex", alignItems: "center", gap: 12, borderBottom: i < arr.length - 1 ? `1px solid ${S.line}` : "none", background: S.panel, flexWrap: "wrap" }}>
@@ -775,7 +785,7 @@ function FeedRow({ it, i, dense, active, isSaved, onSave }) {
         onClick={() => track("outbound", { to: it.link, source: it.source, kind: "feed" })}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: dense ? 4 : 7, fontFamily: S.mono, fontSize: 11 }}>
           <span style={{ width: 5, height: 5, borderRadius: "50%", background: it.color, flexShrink: 0 }} />
-          <span style={{ color: it.color }}>{it.source}</span>
+          <span style={{ color: readable(it.color) }}>{it.source}</span>
           {it.author && !dense && <span style={{ color: S.faint }}>· {it.author.slice(0, 26)}</span>}
           <span style={{ color: S.faint, marginLeft: "auto" }}>{relTime(it.date)}</span>
         </div>
@@ -809,7 +819,7 @@ function FeedCard({ it, isSaved, onSave }) {
       <div style={{ padding: "13px 15px 15px", display: "flex", flexDirection: "column", flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7, fontFamily: S.mono, fontSize: 10.5 }}>
           <span style={{ width: 5, height: 5, borderRadius: "50%", background: it.color, flexShrink: 0 }} />
-          <span style={{ color: it.color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.source}</span>
+          <span style={{ color: readable(it.color), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.source}</span>
           <span style={{ color: S.faint, marginLeft: "auto" }}>{relTime(it.date)}</span>
           <button onClick={onSave} aria-label={isSaved ? "Remove from saved" : "Save"}
             style={{ background: "none", border: "none", cursor: "pointer", color: isSaved ? C.mint : S.faint, fontSize: 13, padding: 0 }}>
@@ -842,7 +852,7 @@ const SectionHead = ({ eyebrow, title, body, art }) => (
   <div style={{ marginBottom: 32, maxWidth: 620, position: "relative" }}>
     {art && <HeaderArt view={art} />}
     <div style={{ position: "relative", zIndex: 1 }}>
-    <div style={{ fontFamily: S.mono, fontSize: 10, color: C.violet, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>{eyebrow}</div>
+    <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>{eyebrow}</div>
     <h2 style={{ fontFamily: S.disp, fontSize: 30, fontWeight: 600, letterSpacing: "-.025em", marginBottom: 12, lineHeight: 1.15 }}>{title}</h2>
     <p style={{ fontSize: 14.5, color: S.dim, lineHeight: 1.65 }}>{body}</p>
     </div>

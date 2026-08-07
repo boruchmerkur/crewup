@@ -241,7 +241,7 @@ export function PresenceStrip({ label = "reading right now" }) {
           </span>
         ))}
       </div>
-      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#3B4252" }}>
+      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#7E8494" }}>
         {n} {label}
       </span>
     </div>

@@ -11,7 +11,7 @@ button{font-family:inherit}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 .row:hover{background:#12161F}
-.row:hover .t{color:#7C3AED}
+.row:hover .t{color:#A78BFA}
 .chip:hover{border-color:#7C3AED;color:#E8E6E3}
 .card:hover{border-color:#2A3550;background:#12161F}
 .gloss:hover{background:#0F141C}
@@ -60,7 +60,7 @@ input:focus{border-color:#7C3AED!important;outline:none}
                      border-radius:inherit;pointer-events:none;
                      background:linear-gradient(180deg,rgba(255,255,255,.14),transparent 42%)}
 
-.cta-ghost{background:transparent;color:#8B949E;border-color:#1C2333}
+.cta-ghost{background:transparent;color:#939AA8;border-color:#1C2333}
 .cta-ghost:hover{border-color:#2A3550;background:#12161F;color:#E8E6E3}
 
 /* Arrows lead the eye on hover. Used on the CTAs and the hero's read-it link. */
@@ -76,7 +76,7 @@ a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
     opacity:.62;transition:opacity .2s,border-color .2s}
 .ds:hover{opacity:1;border-color:#2A3550}
 .ds span{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.09em;
-         text-transform:uppercase;color:#546178}
+         text-transform:uppercase;color:#7E8494}
 .ds img{height:13px;width:auto;display:block}
 
 @media(max-width:640px){
