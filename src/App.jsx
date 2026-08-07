@@ -129,6 +129,15 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: S.bg, color: S.text, fontFamily: S.body, position: "relative" }}>
       <Backdrop />
 
+      {/* Network credit. Rendered at the app root, not per view, because it is
+          position:fixed — one per page, outliving view changes. */}
+      <a className="ds" href="https://dreamsitedesign.com" target="_blank" rel="noopener noreferrer"
+        aria-label="Built by DreamSite"
+        onClick={() => track("outbound", { to: "https://dreamsitedesign.com", kind: "credit" })}>
+        <span>built by</span>
+        <img src="/art/dreamsite-h-white.svg" alt="DreamSite" width="70" height="13" />
+      </a>
+
       {/* ── Header ── */}
       <header style={{
         borderBottom: `1px solid ${S.line}`, padding: "14px 28px", display: "flex",

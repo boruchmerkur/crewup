@@ -21,6 +21,23 @@ input:focus{border-color:#7C3AED!important;outline:none}
 
 :focus-visible{outline:2px solid #7C3AED;outline-offset:2px}
 
+/* Network credit — same fixed pill the other DreamSite properties carry.
+   Colours are crewup's, the geometry and wording are the shared pattern.
+   Dark-only site, so only the white mark is needed. */
+.ds{position:fixed;right:14px;bottom:14px;z-index:1000;display:flex;align-items:center;gap:7px;
+    text-decoration:none;padding:6px 10px;border-radius:20px;
+    background:#12161F;border:1px solid #1C2333;
+    opacity:.62;transition:opacity .2s,border-color .2s}
+.ds:hover{opacity:1;border-color:#2A3550}
+.ds span{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.09em;
+         text-transform:uppercase;color:#546178}
+.ds img{height:13px;width:auto;display:block}
+
+@media(max-width:640px){
+  .ds{right:10px;bottom:10px;padding:5px 8px;gap:5px}
+  .ds img{height:11px}
+}
+
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:#1C2333;border-radius:5px}
 ::-webkit-scrollbar-thumb:hover{background:#2A3550}
