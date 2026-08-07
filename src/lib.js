@@ -13,7 +13,10 @@ export const stripHtml = (h = "") => {
    and stop at the first plausible hit. Anything that smells like a
    tracking pixel, avatar or spacer is skipped. */
 
-const JUNK_RE = /1x1|\bpixel\b|spacer|blank|transparent|track|beacon|feedburner|doubleclick|gravatar|avatar|emoji|badge|button|icon-|\/icons?\//i;
+/* Extend this only with evidence. Every pattern added here is a thumbnail
+   removed from the wall, and "looks like junk" is a weaker signal than it
+   sounds: an earlier pass added /logo/ and cost several hundred good images. */
+const JUNK_RE = /1x1|\bpixel\b|spacer|blank|transparent|track|beacon|feedburner|doubleclick|gravatar|avatar|emoji|badge|button|icon-|\/icons?\/|sprite|headshot|byline|\/author\/|share-icon|social-icon/i;
 
 function absolutise(src, base) {
   if (!src) return null;
@@ -31,6 +34,9 @@ function extractImage(node, html, base) {
   const tags = (name) => Array.from(node.getElementsByTagName(name));
 
   // 1. media:content / media:thumbnail — the RSS media extension. Most explicit.
+  //    Feeds routinely advertise the SAME image at several sizes here, so take
+  //    the widest rather than the first: the first is usually the thumbnail.
+  const media = [];
   for (const m of [...tags("media:content"), ...tags("media:thumbnail")]) {
     const u = m.getAttribute("url");
     const type = m.getAttribute("type") || "";
@@ -39,8 +45,12 @@ function extractImage(node, html, base) {
     if (w && w < 120) continue;
     if (u && (medium === "image" || type.startsWith("image") || /\.(jpe?g|png|webp|gif|avif)/i.test(u))) {
       const hit = plausible(absolutise(u, base));
-      if (hit) return hit;
+      if (hit) media.push({ hit, w });
     }
+  }
+  if (media.length) {
+    media.sort((a, b) => b.w - a.w);   // unknown width (0) sinks to the bottom
+    return media[0].hit;
   }
 
   // 2. <enclosure> — the original RSS attachment mechanism.
@@ -60,24 +70,79 @@ function extractImage(node, html, base) {
     }
   }
 
-  // 4. First real <img> inside the content HTML. Common on Substack, DEV,
+  // 4. The best real <img> inside the content HTML. Common on Substack, DEV,
   //    Smashing — and where most of our images will actually come from.
+  //    Not the first one: posts open with a logo or an author portrait often
+  //    enough that "first" and "representative" are different pictures. Prefer
+  //    the largest declared area, and treat position as the tie-breaker.
   if (html) {
     try {
       const doc = new DOMParser().parseFromString(html, "text/html");
-      for (const img of doc.querySelectorAll("img")) {
+      const cands = [];
+      [...doc.querySelectorAll("img")].forEach((img, idx) => {
         const w = parseInt(img.getAttribute("width") || "0", 10);
         const h = parseInt(img.getAttribute("height") || "0", 10);
-        if ((w && w < 120) || (h && h < 120)) continue;   // icon or pixel
+        if ((w && w < 120) || (h && h < 120)) return;   // icon, avatar or pixel
         const raw = img.getAttribute("src") || img.getAttribute("data-src") ||
                     (img.getAttribute("srcset") || "").split(/\s+/)[0];
         const hit = plausible(absolutise(raw, base));
-        if (hit) return hit;
+        if (hit) cands.push({ hit, area: w * h, idx });
+      });
+      if (cands.length) {
+        cands.sort((a, b) => b.area - a.area || a.idx - b.idx);
+        return cands[0].hit;
       }
     } catch { /* malformed content html */ }
   }
 
   return null;
+}
+
+/* ── Summary text ────────────────────────────────────────────────
+   Feed descriptions arrive wrapped in syndication furniture: WordPress
+   signs off every post, aggregators put nothing but metadata in the
+   description, and several feeds close with subscribe pitches. Strip all
+   of that before measuring length, or the excerpt spends its budget on
+   boilerplate and truncates mid-sentence in the one place it had something
+   to say. */
+
+const SUMMARY_MAX = 420;
+
+const BOILER = [
+  /\bThe post\b[\s\S]{0,160}?\bappeared first on\b[^.]{0,80}\.?\s*$/i,   // WordPress
+  /\bContinue reading\b[\s\S]*$/i,
+  /\bRead (?:more|the (?:full|rest))\b[\s\S]{0,60}$/i,
+  /\bShare this:[\s\S]*$/i,
+  /\bSubscribe (?:to|now)\b[\s\S]*$/i,
+];
+
+// Hacker News, Lobsters and similar put only link metadata in <description>.
+const AGGREGATOR_META = [
+  /\b(?:Article|Comments)\s+URL:\s*\S+/gi,
+  /\bPoints:\s*\d+/gi,
+  /#\s*Comments:\s*\d+/gi,
+];
+
+export function cleanSummary(html) {
+  let t = stripHtml(html);
+  for (const re of AGGREGATOR_META) t = t.replace(re, " ");
+  for (const re of BOILER) t = t.replace(re, "");
+  t = t.replace(/\s+/g, " ").trim();
+
+  // What's left of an aggregator entry is "Comments" or nothing. An empty
+  // summary renders as no paragraph at all, which beats a stub that says
+  // nothing — the headline is the content for those sources.
+  if (t.length < 25) return { summary: "", truncated: false };
+  if (t.length <= SUMMARY_MAX) return { summary: t, truncated: false };
+
+  const cut = t.slice(0, SUMMARY_MAX);
+  // Ending on a full sentence reads as deliberate rather than chopped, so
+  // prefer that whenever one lands in the back half of the budget.
+  const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  if (stop > SUMMARY_MAX * 0.55) return { summary: cut.slice(0, stop + 1).trim(), truncated: false };
+
+  const sp = cut.lastIndexOf(" ");
+  return { summary: (sp > 0 ? cut.slice(0, sp) : cut).replace(/[,;:—–-]$/, "").trim(), truncated: true };
 }
 
 export function parseFeed(xml, source) {
@@ -98,12 +163,17 @@ export function parseFeed(xml, source) {
       const html = encoded || raw;
       let host = "";
       try { host = new URL(link || source.url).hostname; } catch { /* malformed link */ }
+      // Summarise from the richest body the entry offers. `raw` alone misses
+      // content:encoded, which is exactly where the feeds with real prose put
+      // it — so the fullest feeds were the ones getting the thinnest excerpts.
+      const { summary, truncated } = cleanSummary(html || raw);
       return {
         image: extractImage(n, html, link || source.url),
         host,
         title: stripHtml(g("title")),
         link,
-        summary: stripHtml(raw).slice(0, 240),
+        summary,
+        summaryTruncated: truncated,
         author: g("author > name") || g("creator") || "",
         date: ds ? new Date(ds) : null,
         source: source.name,

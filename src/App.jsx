@@ -737,7 +737,12 @@ function FeedRow({ it, i, dense, active, isSaved, onSave }) {
           <span style={{ color: S.faint, marginLeft: "auto" }}>{relTime(it.date)}</span>
         </div>
         <h3 className="t" style={{ fontFamily: S.disp, fontSize: dense ? 14.5 : 16, fontWeight: 600, lineHeight: 1.35, letterSpacing: "-.01em", transition: "color .15s", marginBottom: dense ? 0 : 6 }}>{it.title}</h3>
-        {!dense && it.summary && <p style={{ fontSize: 13.5, color: S.dim, lineHeight: 1.55 }}>{it.summary}…</p>}
+        {!dense && it.summary && (
+          <p style={{
+            fontSize: 13.5, color: S.dim, lineHeight: 1.55,
+            display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden",
+          }}>{it.summary}{it.summaryTruncated ? "…" : ""}</p>
+        )}
       </a>
       <button onClick={onSave} className={`sv ${isSaved ? "on" : ""}`} aria-label={isSaved ? "Remove from saved" : "Save"}
         style={{ background: "transparent", border: "none", cursor: "pointer", color: isSaved ? C.mint : S.faint, fontSize: 15, padding: "2px 4px", flexShrink: 0 }}>
