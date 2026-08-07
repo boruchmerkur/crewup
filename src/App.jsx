@@ -25,7 +25,7 @@ const VIEWS = [
 ];
 
 const S = {
-  bg: "#0D1117", panel: "#0B0F15", line: "#1C2333", hov: "#12161F",
+  bg: "#101010", panel: "#0A0A0B", line: "#24242A", hov: "#17171B",
   text: "#E8E6E3", dim: "#939AA8", faint: "#7E8494",
   // Brand violet is 3.3:1 on the ground — fine as a fill or a dot,
   // illegible as small text. Anything that is WORDS uses link instead.
@@ -158,7 +158,7 @@ export default function App() {
       <header style={{
         borderBottom: `1px solid ${S.line}`, padding: "14px 28px", display: "flex",
         alignItems: "center", gap: 12, flexWrap: "wrap", position: "sticky", top: 0,
-        background: "rgba(13,17,23,.94)", backdropFilter: "blur(12px)", zIndex: 30,
+        background: "rgba(16,16,16,.94)", backdropFilter: "blur(12px)", zIndex: 30,
       }}>
         <button onClick={() => setView("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, padding: 0 }}>
           <span style={{ width: 26, height: 26, borderRadius: 6, background: `linear-gradient(135deg,${C.violet},${C.mint})`, display: "grid", placeItems: "center", fontFamily: S.mono, fontWeight: 700, fontSize: 13, color: S.bg }}>C</span>
@@ -421,7 +421,7 @@ function Home({ setView, items, saved, live, loading }) {
           </div>
         </ArtSlot>
 
-        <div style={{ background: "#0B0F15", border: `1px solid ${S.line}`, borderRadius: 10, overflow: "hidden" }}>
+        <div style={{ background: "#0A0A0B", border: `1px solid ${S.line}`, borderRadius: 10, overflow: "hidden" }}>
           <div style={{ padding: "10px 16px", borderBottom: `1px solid ${S.line}`, display: "flex", alignItems: "center", gap: 8 }}>
             {["#F5534F", "#F5BF4F", "#28C840"].map((c) => <span key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
             <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, marginLeft: 8 }}>crewup — session:sprint-14</span>
@@ -605,7 +605,7 @@ function Playbook({ openCard, setOpenCard }) {
           return (
             <div key={p.id} className="card lift" onClick={() => { setOpenCard(open ? null : p.id); if (!open) track("open_practice", { id: p.id }); }}
               style={{
-                background: S.panel, border: `1px solid ${open ? "#2A3550" : S.line}`, borderRadius: 10,
+                background: S.panel, border: `1px solid ${open ? "#34343E" : S.line}`, borderRadius: 10,
                 padding: "18px 20px", cursor: "pointer", transition: "border-color .15s",
                 gridColumn: open ? "1 / -1" : "auto",
               }}>

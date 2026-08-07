@@ -14,15 +14,18 @@ let proxyAvailable = null;
 export function Backdrop() {
   return (
     <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
-      {/* Aurora — two slow-drifting colour fields */}
+      {/* Aurora — three slow-drifting colour fields. The third is warm on
+          purpose: violet and mint are both cool, and two cool sources over a
+          neutral ground is what made the page read cold. */}
       <div className="aurora a1" />
       <div className="aurora a2" />
+      <div className="aurora a3" />
 
       {/* Dot grid, fading out toward the bottom */}
       <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.5 }}>
         <defs>
           <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="#1C2333" />
+            <circle cx="1" cy="1" r="1" fill="#24242A" />
           </pattern>
           <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fff" stopOpacity="0.9" />
@@ -159,17 +162,17 @@ export function ArtSlot({ src, ratio = "4 / 3", radius = 10, fallbackFrom = C.vi
   return (
     <div style={{
       position: "relative", aspectRatio: ratio, borderRadius: radius, overflow: "hidden",
-      border: "1px solid #1C2333",
+      border: "1px solid #24242A",
       background: state === "ok"
-        ? `#0B0F15 url(${src}) center/cover`
+        ? `#0A0A0B url(${src}) center/cover`
         : `radial-gradient(120% 100% at 20% 10%, ${fallbackFrom}22, transparent 60%),
            radial-gradient(100% 100% at 85% 90%, ${fallbackTo}1C, transparent 55%),
-           #0B0F15`,
+           #0A0A0B`,
       ...style,
     }}>
       {state !== "ok" && children}
       {state === "ok" && (
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #0D1117CC, transparent 55%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #101010CC, transparent 55%)" }} />
       )}
     </div>
   );
@@ -207,10 +210,10 @@ export function Avatar({ name, size = 28, index }) {
     <span title={name} style={{
       width: size, height: size, borderRadius: "50%", flexShrink: 0,
       display: "grid", placeItems: "center",
-      background: img ? `#0B0F15 url(${src}) center/cover` : `linear-gradient(135deg, ${from}, ${to})`,
-      color: "#0D1117", fontFamily: "'JetBrains Mono',monospace",
+      background: img ? `#0A0A0B url(${src}) center/cover` : `linear-gradient(135deg, ${from}, ${to})`,
+      color: "#101010", fontFamily: "'JetBrains Mono',monospace",
       fontSize: size * 0.36, fontWeight: 700, letterSpacing: "-.02em",
-      border: "2px solid #0D1117",
+      border: "2px solid #101010",
     }}>
       {!img && initials}
     </span>
@@ -345,10 +348,10 @@ export function FeedThumb({ src, color = C.violet, w = 116, ratio = "16 / 10", r
     <div style={{
       width: w, aspectRatio: ratio, flexShrink: 0, borderRadius: radius,
       overflow: "hidden", position: "relative",
-      border: "1px solid #1C2333",
+      border: "1px solid #24242A",
       background: showing && !isIcon
-        ? `#0B0F15 url("${url}") center/cover`
-        : `linear-gradient(135deg, ${color}1E, #0B0F15 70%)`,
+        ? `#0A0A0B url("${url}") center/cover`
+        : `linear-gradient(135deg, ${color}1E, #0A0A0B 70%)`,
       transition: "background .25s",
     }}>
       {/* A favicon is centred at its own size rather than stretched to cover. */}

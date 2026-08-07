@@ -2,7 +2,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:#0D1117;color:#E8E6E3;-webkit-font-smoothing:antialiased}
+body{background:#101010;color:#E8E6E3;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
 ::selection{background:#7C3AED44}
@@ -10,11 +10,11 @@ button{font-family:inherit}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-.row:hover{background:#12161F}
+.row:hover{background:#17171B}
 .row:hover .t{color:#A78BFA}
 .chip:hover{border-color:#7C3AED;color:#E8E6E3}
-.card:hover{border-color:#2A3550;background:#12161F}
-.gloss:hover{background:#0F141C}
+.card:hover{border-color:#34343E;background:#17171B}
+.gloss:hover{background:#151519}
 input:focus{border-color:#7C3AED!important;outline:none}
 .sv{opacity:0;transition:opacity .15s}
 .row:hover .sv,.sv.on,.sv:focus{opacity:1}
@@ -60,8 +60,8 @@ input:focus{border-color:#7C3AED!important;outline:none}
                      border-radius:inherit;pointer-events:none;
                      background:linear-gradient(180deg,rgba(255,255,255,.14),transparent 42%)}
 
-.cta-ghost{background:transparent;color:#939AA8;border-color:#1C2333}
-.cta-ghost:hover{border-color:#2A3550;background:#12161F;color:#E8E6E3}
+.cta-ghost{background:transparent;color:#939AA8;border-color:#24242A}
+.cta-ghost:hover{border-color:#34343E;background:#17171B;color:#E8E6E3}
 
 /* Arrows lead the eye on hover. Used on the CTAs and the hero's read-it link. */
 .arw{display:inline-block;transition:transform .22s cubic-bezier(.2,.8,.2,1)}
@@ -72,9 +72,9 @@ a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
    Dark-only site, so only the white mark is needed. */
 .ds{position:fixed;right:14px;bottom:14px;z-index:1000;display:flex;align-items:center;gap:7px;
     text-decoration:none;padding:6px 10px;border-radius:20px;
-    background:#12161F;border:1px solid #1C2333;
+    background:#17171B;border:1px solid #24242A;
     opacity:.62;transition:opacity .2s,border-color .2s}
-.ds:hover{opacity:1;border-color:#2A3550}
+.ds:hover{opacity:1;border-color:#34343E}
 .ds span{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.09em;
          text-transform:uppercase;color:#7E8494}
 .ds img{height:13px;width:auto;display:block}
@@ -85,9 +85,9 @@ a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
 }
 
 ::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-thumb{background:#1C2333;border-radius:5px}
-::-webkit-scrollbar-thumb:hover{background:#2A3550}
-::-webkit-scrollbar-track{background:#0B0F15}
+::-webkit-scrollbar-thumb{background:#24242A;border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:#34343E}
+::-webkit-scrollbar-track{background:#0A0A0B}
 
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -120,8 +120,18 @@ a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
   background:radial-gradient(circle,rgba(52,211,153,.13),transparent 68%);
   animation:drift2 44s ease-in-out infinite alternate;
 }
+/* A third, warm field. Violet and mint are both cool, so the page was lit
+   entirely from the cold end and read clinical on a neutral ground. Amber at
+   9% never announces itself — it just stops the lower half going blue. */
+.aurora.a3{
+  width:52vw;height:52vw;max-width:700px;max-height:700px;
+  bottom:-18vw;left:18vw;
+  background:radial-gradient(circle,rgba(245,158,11,.09),transparent 70%);
+  animation:drift3 52s ease-in-out infinite alternate;
+}
 @keyframes drift1{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(7vw,5vw,0) scale(1.14)}}
 @keyframes drift2{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-6vw,8vw,0) scale(1.1)}}
+@keyframes drift3{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(5vw,-6vw,0) scale(1.12)}}
 
 /* Only appears if the MJ tile has been dropped into public/art/ */
 .mj-texture{

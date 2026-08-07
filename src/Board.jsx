@@ -5,7 +5,7 @@ import { relTime } from "./lib.js";
 import { HeaderArt, Avatar } from "./Art.jsx";
 
 const S = {
-  bg: "#0D1117", panel: "#0B0F15", line: "#1C2333", hov: "#12161F",
+  bg: "#101010", panel: "#0A0A0B", line: "#24242A", hov: "#17171B",
   text: "#E8E6E3", dim: "#6B7694", faint: "#3B4252",
   mono: "'JetBrains Mono',ui-monospace,monospace",
   disp: "'Space Grotesk',sans-serif",
@@ -107,7 +107,7 @@ export default function Board() {
         <button onClick={() => setComposing(!composing)} className="lift"
           style={{
             marginLeft: "auto", background: composing ? "transparent" : C.mint,
-            color: composing ? S.dim : "#0D1117",
+            color: composing ? S.dim : "#101010",
             border: `1px solid ${composing ? S.line : C.mint}`,
             borderRadius: 7, padding: "8px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer",
           }}>
@@ -180,7 +180,7 @@ function PostCard({ p }) {
           <div style={{
             width: 44, height: 44, borderRadius: 9, flexShrink: 0,
             background: `linear-gradient(135deg, ${accent}, ${C.violet})`,
-            display: "grid", placeItems: "center", color: "#0D1117",
+            display: "grid", placeItems: "center", color: "#101010",
             fontFamily: S.mono, fontWeight: 700, fontSize: 16,
           }}>{p.name.slice(0, 2).toUpperCase()}</div>
         )}
@@ -273,7 +273,7 @@ function PostCard({ p }) {
           {p.og.image && (
             <div style={{
               width: 148, flexShrink: 0, aspectRatio: "16/10",
-              background: `#0B0F15 url("/api/img?url=${encodeURIComponent(p.og.image)}") center/cover`,
+              background: `#0A0A0B url("/api/img?url=${encodeURIComponent(p.og.image)}") center/cover`,
             }} />
           )}
           <div style={{ padding: "12px 14px", minWidth: 0 }}>
@@ -307,7 +307,7 @@ function PostCard({ p }) {
         {p.contact && (
           <a href={/^https?:/.test(p.contact) ? p.contact : `mailto:${p.contact}`}
             style={{
-              marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: "#0D1117",
+              marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: "#101010",
               background: accent, borderRadius: 6, padding: "7px 15px",
             }}>Get in touch</a>
         )}
@@ -377,7 +377,7 @@ function Composer({ kind: initialKind, onDone }) {
           <button key={id} onClick={() => setKind(id)} style={{
             background: kind === id ? S.hov : "transparent",
             color: kind === id ? S.text : S.dim,
-            border: `1px solid ${kind === id ? "#2A3550" : S.line}`,
+            border: `1px solid ${kind === id ? "#34343E" : S.line}`,
             borderRadius: 7, padding: "7px 15px", fontSize: 13, cursor: "pointer",
           }}>{label}</button>
         ))}
@@ -444,7 +444,7 @@ function Composer({ kind: initialKind, onDone }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <button onClick={submit} disabled={busy} className="lift" style={{
-            background: busy ? S.line : C.mint, color: busy ? S.dim : "#0D1117",
+            background: busy ? S.line : C.mint, color: busy ? S.dim : "#101010",
             border: "none", borderRadius: 7, padding: "10px 22px",
             fontSize: 13.5, fontWeight: 600, cursor: busy ? "default" : "pointer",
           }}>{busy ? "Posting…" : "Post to the board"}</button>
@@ -460,7 +460,7 @@ function Composer({ kind: initialKind, onDone }) {
 const Field = ({ label, hint, children }) => (
   <label style={{ display: "grid", gap: 6 }}>
     <span style={{ fontFamily: S.mono, fontSize: 10, color: S.faint, letterSpacing: ".07em", textTransform: "uppercase", display: "flex", gap: 8 }}>
-      {label}{hint && <em style={{ fontStyle: "normal", color: "#2A3550", textTransform: "none", letterSpacing: 0 }}>{hint}</em>}
+      {label}{hint && <em style={{ fontStyle: "normal", color: "#34343E", textTransform: "none", letterSpacing: 0 }}>{hint}</em>}
     </span>
     {children}
   </label>
