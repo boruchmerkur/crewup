@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY } from "./data.js";
-import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved } from "./lib.js";
+import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved, pickFeatured } from "./lib.js";
 import { track } from "./analytics.js";
 import Board from "./Board.jsx";
 import { Backdrop, ConnectiveField, ArtSlot, Avatar, PresenceStrip, HeaderArt, FeedThumb } from "./Art.jsx";
@@ -310,6 +310,11 @@ function Home({ setView, items, saved, live, loading }) {
     .replace(/('(?:[^'\\]|\\.)*')/g, `<span style="color:${C.mint}">$1</span>`)
     .replace(/(\.[a-z]\w*)/g, `<span style="color:${C.amber}">$1</span>`);
 
+  // One ordered list, split between the hero and the strip below it, so the
+  // lead story never appears twice on the page.
+  const picks = useMemo(() => pickFeatured(items, 6), [items]);
+  const hero = picks[0];
+
   const stats = [
     { n: SOURCES.length, l: "feeds tracked" },
     { n: PLAYBOOK.length, l: "practices" },
@@ -325,15 +330,53 @@ function Home({ setView, items, saved, live, loading }) {
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.mint, animation: "pulse 2s infinite" }} />
             {live > 0 ? `${live} sources streaming` : "connecting to sources…"}
           </div>
-          <h1 style={{ fontFamily: S.disp, fontSize: 50, fontWeight: 700, lineHeight: 1.07, letterSpacing: "-.03em", marginBottom: 22 }}>
-            Code together.<br /><span style={{ color: C.violet }}>Ship faster.</span>
-          </h1>
-          <p style={{ fontSize: 17, color: S.dim, lineHeight: 1.62, maxWidth: 430, marginBottom: 32 }}>
-            A working library for teams that build things together — a live feed of what's being
-            written about collaboration, the practices that actually hold up, and the tools worth
-            the switching cost.
-          </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+
+          {/* The lead story IS the hero. A slogan here would say what the site
+              is; this shows it, and it's the thing a visitor actually came to
+              read. Falls back to a skeleton while the first feeds land, and to
+              the strapline only if every source fails. */}
+          {hero ? (
+            <a href={hero.link} target="_blank" rel="noopener noreferrer" className="t"
+              onClick={() => track("outbound", { to: hero.link, source: hero.source, kind: "hero" })}
+              style={{ display: "block" }}>
+              <div style={{ marginBottom: 18, borderRadius: 12, overflow: "hidden", border: `1px solid ${S.line}` }}>
+                <FeedThumb src={hero.image} color={hero.color} w="100%" ratio="16 / 9" radius={0} host={hero.host} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, fontFamily: S.mono, fontSize: 11 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: hero.color, flexShrink: 0 }} />
+                <span style={{ color: hero.color }}>{hero.source}</span>
+                {hero.author && <span style={{ color: S.faint }}>· {hero.author.slice(0, 32)}</span>}
+                <span style={{ color: S.faint }}>· {relTime(hero.date)}</span>
+              </div>
+              <h1 style={{ fontFamily: S.disp, fontSize: 40, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-.03em", marginBottom: 18, transition: "color .15s" }}>
+                {hero.title}
+              </h1>
+              {hero.summary && (
+                <p style={{
+                  fontSize: 16, color: S.dim, lineHeight: 1.62, maxWidth: 460, marginBottom: 26,
+                  display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden",
+                }}>{hero.summary}</p>
+              )}
+              <span style={{ fontFamily: S.mono, fontSize: 13, color: C.violet }}>read it →</span>
+            </a>
+          ) : loading ? (
+            <div style={{ maxWidth: 460 }}>
+              <Skel h={22} /><div style={{ height: 14 }} />
+              <Skel h={92} /><div style={{ height: 14 }} />
+              <Skel h={64} />
+            </div>
+          ) : (
+            <>
+              <h1 style={{ fontFamily: S.disp, fontSize: 44, fontWeight: 700, lineHeight: 1.07, letterSpacing: "-.03em", marginBottom: 22 }}>
+                Code together.<br /><span style={{ color: C.violet }}>Ship faster.</span>
+              </h1>
+              <p style={{ fontSize: 17, color: S.dim, lineHeight: 1.62, maxWidth: 430, marginBottom: 32 }}>
+                The feed is unreachable right now — the playbook, toolbox and glossary are still here.
+              </p>
+            </>
+          )}
+
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 30 }}>
             <button onClick={() => setView("feed")} style={{ background: C.violet, color: "#fff", border: "none", borderRadius: 7, padding: "12px 22px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
               Read the feed
             </button>
@@ -369,7 +412,7 @@ function Home({ setView, items, saved, live, loading }) {
         </div>
       </section>
 
-      <FeaturedFeed items={items} setView={setView} loading={loading} />
+      <FeaturedFeed picks={picks.slice(1)} setView={setView} loading={loading} />
 
       <section style={{ borderTop: `1px solid ${S.line}`, borderBottom: `1px solid ${S.line}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 28px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))" }}>
@@ -410,24 +453,7 @@ function Home({ setView, items, saved, live, loading }) {
    if there genuinely aren't enough.
    ═══════════════════════════════════════════════════════════════ */
 
-function FeaturedFeed({ items, setView, loading }) {
-  const picks = useMemo(() => {
-    const byDate = (a, b) => (b.date || 0) - (a.date || 0);
-    const seen = new Set();
-    const uniq = items.filter((i) => (seen.has(i.link) ? false : seen.add(i.link)));
-
-    // Spread across sources so one prolific feed can't take the whole strip.
-    const perSource = {};
-    const spread = [...uniq].sort(byDate).filter((i) => {
-      perSource[i.sourceId] = (perSource[i.sourceId] || 0) + 1;
-      return perSource[i.sourceId] <= 2;
-    });
-
-    const withImg = spread.filter((i) => i.image);
-    const without = spread.filter((i) => !i.image);
-    return [...withImg, ...without].slice(0, 5);
-  }, [items]);
-
+function FeaturedFeed({ picks = [], setView, loading }) {
   if (loading && picks.length === 0) {
     return (
       <section style={{ maxWidth: 1280, margin: "0 auto", padding: "0 28px 64px" }}>

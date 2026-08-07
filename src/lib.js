@@ -199,6 +199,29 @@ export async function fetchFeed(source) {
   return { ok: false, items: [] };
 }
 
+/* Pick the items worth putting a picture on. Shared by the home hero and the
+   Latest strip so the same story can't headline twice: the hero takes the
+   first, the strip gets the rest of the same ordered list.
+
+   Image-first is deliberate — an illustrated item earns the space, a gradient
+   placeholder doesn't — but image-less items still pad the tail rather than
+   leaving the strip short. */
+export function pickFeatured(items, n = 6) {
+  const seen = new Set();
+  const uniq = items.filter((i) => (seen.has(i.link) ? false : seen.add(i.link)));
+
+  // Spread across sources so one prolific feed can't take the whole strip.
+  const perSource = {};
+  const spread = [...uniq]
+    .sort((a, b) => (b.date || 0) - (a.date || 0))
+    .filter((i) => {
+      perSource[i.sourceId] = (perSource[i.sourceId] || 0) + 1;
+      return perSource[i.sourceId] <= 2;
+    });
+
+  return [...spread.filter((i) => i.image), ...spread.filter((i) => !i.image)].slice(0, n);
+}
+
 export const scoreItem = (i) => {
   const hay = `${i.title} ${i.summary}`.toLowerCase();
   return COLLAB_TERMS.reduce((n, t) => (hay.includes(t) ? n + 1 : n), 0);
