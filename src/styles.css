@@ -21,6 +21,42 @@ input:focus{border-color:#7C3AED!important;outline:none}
 
 :focus-visible{outline:2px solid #7C3AED;outline-offset:2px}
 
+/* ── Call-to-action controls ──────────────────────────────────────
+   Pill geometry, a cursor-tracked highlight, and an arrow that moves on
+   hover. The highlight follows the pointer via --mx/--my, set on
+   mousemove — a hover state that ignores where the cursor actually is
+   reads as a decade old. All of it is transition-based, so the global
+   prefers-reduced-motion rule below switches it off wholesale. */
+
+.cta{position:relative;overflow:hidden;isolation:isolate;
+     display:inline-flex;align-items:center;gap:9px;
+     border-radius:999px;padding:13px 24px;
+     font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
+     border:1px solid transparent;
+     transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .2s,background .2s}
+.cta>*{position:relative;z-index:3}
+.cta:active{transform:translateY(1px)}
+
+/* Cursor-tracked sheen. */
+.cta::after{content:"";position:absolute;inset:0;z-index:2;opacity:0;
+            transition:opacity .25s;pointer-events:none;
+            background:radial-gradient(120px circle at var(--mx,50%) var(--my,50%),
+                       rgba(255,255,255,.20),transparent 62%)}
+.cta:hover::after{opacity:1}
+
+.cta-primary{background:#7C3AED;color:#fff}
+.cta-primary::before{content:"";position:absolute;inset:0;z-index:1;opacity:0;
+                     transition:opacity .3s;
+                     background:linear-gradient(115deg,#7C3AED 30%,#34D399)}
+.cta-primary:hover::before{opacity:1}
+
+.cta-ghost{background:transparent;color:#E8E6E3;border-color:#1C2333}
+.cta-ghost:hover{border-color:#2A3550;background:#12161F}
+
+/* Arrows lead the eye on hover. Used on the CTAs and the hero's read-it link. */
+.arw{display:inline-block;transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
+
 /* Network credit — same fixed pill the other DreamSite properties carry.
    Colours are crewup's, the geometry and wording are the shared pattern.
    Dark-only site, so only the white mark is needed. */

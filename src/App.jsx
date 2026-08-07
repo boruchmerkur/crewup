@@ -5,6 +5,14 @@ import { track } from "./analytics.js";
 import Board from "./Board.jsx";
 import { Backdrop, ConnectiveField, ArtSlot, Avatar, PresenceStrip, HeaderArt, FeedThumb } from "./Art.jsx";
 
+/* Feeds the pointer position to .cta as --mx/--my so the hover sheen sits
+   under the cursor rather than in the middle of the button. */
+const trackCursor = (e) => {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+};
+
 const VIEWS = [
   { id: "home",     label: "Home",     hint: "What this is" },
   { id: "feed",     label: "Feed",     hint: "Live stream from 30 sources" },
@@ -366,7 +374,7 @@ function Home({ setView, items, saved, live, loading }) {
                   display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden",
                 }}>{hero.summary}</p>
               )}
-              <span style={{ fontFamily: S.mono, fontSize: 13, color: C.violet }}>read it →</span>
+              <span style={{ fontFamily: S.mono, fontSize: 13, color: C.violet }}>read it <span className="arw">→</span></span>
             </a>
           ) : loading ? (
             <div style={{ maxWidth: 460 }}>
@@ -386,11 +394,11 @@ function Home({ setView, items, saved, live, loading }) {
           )}
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 30 }}>
-            <button onClick={() => setView("feed")} style={{ background: C.violet, color: "#fff", border: "none", borderRadius: 7, padding: "12px 22px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-              Read the feed
+            <button onClick={() => setView("feed")} onMouseMove={trackCursor} className="cta cta-primary">
+              <span>Read the feed</span><span className="arw">→</span>
             </button>
-            <button onClick={() => setView("playbook")} style={{ background: "transparent", color: S.text, border: `1px solid ${S.line}`, borderRadius: 7, padding: "12px 22px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
-              Open the playbook
+            <button onClick={() => setView("playbook")} onMouseMove={trackCursor} className="cta cta-ghost">
+              <span>Open the playbook</span><span className="arw">→</span>
             </button>
           </div>
           <div style={{ marginTop: 28 }}><PresenceStrip /></div>
