@@ -29,11 +29,13 @@ input:focus{border-color:#7C3AED!important;outline:none}
    prefers-reduced-motion rule below switches it off wholesale. */
 
 .cta{position:relative;overflow:hidden;isolation:isolate;
-     display:inline-flex;align-items:center;gap:9px;
-     border-radius:999px;padding:13px 24px;
-     font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
+     display:inline-flex;align-items:center;gap:10px;
+     border-radius:999px;padding:11px 22px;
+     font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:400;
+     letter-spacing:.01em;cursor:pointer;
      border:1px solid transparent;
-     transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .2s,background .2s}
+     transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .2s,
+                background .2s,box-shadow .3s,color .2s}
 .cta>*{position:relative;z-index:3}
 .cta:active{transform:translateY(1px)}
 
@@ -41,17 +43,25 @@ input:focus{border-color:#7C3AED!important;outline:none}
 .cta::after{content:"";position:absolute;inset:0;z-index:2;opacity:0;
             transition:opacity .25s;pointer-events:none;
             background:radial-gradient(120px circle at var(--mx,50%) var(--my,50%),
-                       rgba(255,255,255,.20),transparent 62%)}
+                       rgba(255,255,255,.13),transparent 62%)}
 .cta:hover::after{opacity:1}
 
-.cta-primary{background:#7C3AED;color:#fff}
-.cta-primary::before{content:"";position:absolute;inset:0;z-index:1;opacity:0;
-                     transition:opacity .3s;
-                     background:linear-gradient(115deg,#7C3AED 30%,#34D399)}
-.cta-primary:hover::before{opacity:1}
+/* Lit outline rather than a solid slab. The violet now reads as emitted
+   light — a hairline edge, a tinted ground and a glow that only exists on
+   hover — which is what makes it feel like an instrument instead of a
+   button. Weight comes off the type and goes into the edge. */
+.cta-primary{background:rgba(124,58,237,.13);color:#C9B8FF;
+             border-color:rgba(124,58,237,.55);
+             backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.cta-primary:hover{background:rgba(124,58,237,.22);border-color:rgba(124,58,237,.95);
+                   color:#EDE7FF;box-shadow:0 0 26px -6px rgba(124,58,237,.85)}
+/* Hairline top highlight — the edge catching light. */
+.cta-primary::before{content:"";position:absolute;inset:0;z-index:1;
+                     border-radius:inherit;pointer-events:none;
+                     background:linear-gradient(180deg,rgba(255,255,255,.14),transparent 42%)}
 
-.cta-ghost{background:transparent;color:#E8E6E3;border-color:#1C2333}
-.cta-ghost:hover{border-color:#2A3550;background:#12161F}
+.cta-ghost{background:transparent;color:#8B949E;border-color:#1C2333}
+.cta-ghost:hover{border-color:#2A3550;background:#12161F;color:#E8E6E3}
 
 /* Arrows lead the eye on hover. Used on the CTAs and the hero's read-it link. */
 .arw{display:inline-block;transition:transform .22s cubic-bezier(.2,.8,.2,1)}
