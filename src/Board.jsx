@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { C } from "./data.js";
+import { C, COMMUNITY } from "./data.js";
 import { track } from "./analytics.js";
 import { relTime } from "./lib.js";
 import { HeaderArt, Avatar } from "./Art.jsx";
@@ -349,6 +349,10 @@ function Composer({ kind: initialKind, onDone }) {
         body: JSON.stringify({
           ...f,
           kind,
+          // Stamped explicitly rather than left to the server default, so the
+          // day a second community exists this is a value to change, not a
+          // field to add. See COMMUNITY in data.js.
+          community: COMMUNITY,
           skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean),
           links: f.links.split(/[\s,]+/).filter(Boolean),
           elapsed: Date.now() - opened.current,

@@ -148,7 +148,9 @@ async function ogSnapshot(url) {
 export default async (req, context) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
-  const store = getStore("crewup-board");
+  // Strong, not eventual: every write here is read-modify-write on one
+  // list, and two posts landing together would silently drop one.
+  const store = getStore({ name: "crewup-board", consistency: "strong" });
 
   const read = async () => {
     try {
@@ -160,8 +162,12 @@ export default async (req, context) => {
 
   /* ── LIST ── */
   if (req.method === "GET") {
+    const wanted = clean(new URL(req.url).searchParams.get("community"), 32).toLowerCase();
     const posts = await read();
-    return json({ posts: posts.filter((p) => !p.hidden) });
+    const live = posts.filter((p) => !p.hidden);
+    return json({
+      posts: wanted ? live.filter((p) => (p.community || "general") === wanted) : live,
+    });
   }
 
   /* ── DELETE (admin, or author within their session) ── */
@@ -230,6 +236,10 @@ export default async (req, context) => {
   const post = {
     id: crypto.randomUUID(),
     kind,
+    // Crewup is meant to host several communities, not one audience. Every
+    // post is stamped from the first one, so there is never a set of orphans
+    // predating the field whose home has to be guessed. Unstamped == general.
+    community: clean(body.community, 32).toLowerCase() || "general",
     name,
     title,
     body: text,

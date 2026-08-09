@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY } from "./data.js";
+import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS } from "./data.js";
 import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved, pickFeatured } from "./lib.js";
 import { track } from "./analytics.js";
 import Board from "./Board.jsx";
@@ -17,6 +17,7 @@ const VIEWS = [
   { id: "home",     label: "Home",     hint: "What this is" },
   { id: "feed",     label: "Feed",     hint: "Live stream from 30 sources" },
   { id: "board",    label: "Board",    hint: "Who needs help, and who needs work" },
+  { id: "collabs",  label: "Collabs",  hint: "Work split by craft, and who brought what" },
   { id: "playbook", label: "Playbook", hint: "How teams actually work together" },
   { id: "toolbox",  label: "Toolbox",  hint: "Tools worth the switching cost" },
   { id: "glossary", label: "Glossary", hint: "The vocabulary, defined" },
@@ -258,6 +259,7 @@ export default function App() {
           )}
 
           {view === "board" && <Board />}
+          {view === "collabs" && <Collabs />}
           {view === "playbook" && <Playbook openCard={openCard} setOpenCard={setOpenCard} />}
           {view === "toolbox" && <Toolbox />}
           {view === "glossary" && <Glossary />}
@@ -648,6 +650,122 @@ function Playbook({ openCard, setOpenCard }) {
           );
         })}
       </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COLLABS — work split by craft, with a verifiable record.
+   The log renders its commit ref as a link into the repo. That link is the
+   point: it is what separates this from a case study nobody can check.
+   ═══════════════════════════════════════════════════════════════ */
+
+const REPO = "https://github.com/boruchmerkur/crewup/commit/";
+
+const CRAFT_COLOUR = {
+  "Direction & editorial": C.amber,
+  "Feed engineering": C.sky,
+  "Infrastructure & deploy": C.rose,
+  Design: C.violet,
+  Accessibility: C.mint,
+  "Domain & deliverability": C.amber,
+};
+const craftColour = (c) => readable(CRAFT_COLOUR[c] || C.violet);
+
+function Collabs() {
+  return (
+    <>
+      <SectionHead eyebrow="Collabs" title="What we built together, and who brought what"
+        body="A collab is a piece of work split by craft. Each one lists the people, what each of them
+              brought, and a log of the actual changes — every entry linking to the commit it refers to,
+              so none of it has to be taken on trust." />
+
+      {COLLABS.map((co) => (
+        <article key={co.id} style={{ marginBottom: 44 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+            <h3 style={{ fontFamily: S.disp, fontSize: 22, fontWeight: 600, letterSpacing: "-.02em" }}>{co.title}</h3>
+            <span style={{
+              fontFamily: S.mono, fontSize: 9.5, letterSpacing: ".09em", textTransform: "uppercase",
+              color: co.status === "shipped" ? C.mint : S.link,
+              border: `1px solid ${co.status === "shipped" ? C.mint : S.link}55`,
+              borderRadius: 999, padding: "3px 9px",
+            }}>{co.status}</span>
+            <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, marginLeft: "auto" }}>
+              {co.roles.length} crafts · {co.log.length} changes
+            </span>
+          </div>
+
+          <p style={{ fontSize: 15, color: S.text, lineHeight: 1.6, marginBottom: 10, maxWidth: 720 }}>{co.one}</p>
+          <p style={{ fontSize: 13.5, color: S.dim, lineHeight: 1.65, marginBottom: 26, maxWidth: 720 }}>{co.why}</p>
+
+          {/* Who brought what */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 12, marginBottom: 30 }}>
+            {co.roles.map((r) => (
+              <div key={r.craft} className="card" style={{
+                background: S.panel, border: `1px solid ${S.line}`, borderRadius: 9, padding: "15px 17px",
+                borderTop: `2px solid ${craftColour(r.craft)}`,
+              }}>
+                <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(r.craft), letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 7 }}>
+                  {r.craft}
+                </div>
+                <div style={{ fontFamily: S.disp, fontSize: 14.5, fontWeight: 600, marginBottom: 7, display: "flex", alignItems: "center", gap: 7 }}>
+                  {r.who}
+                  {r.kind === "ai" && (
+                    <span title="This contributor is an AI" style={{
+                      fontFamily: S.mono, fontSize: 8.5, letterSpacing: ".08em", color: S.faint,
+                      border: `1px solid ${S.line}`, borderRadius: 4, padding: "1px 5px",
+                    }}>AI</span>
+                  )}
+                </div>
+                <p style={{ fontSize: 12.5, color: S.dim, lineHeight: 1.6 }}>{r.brought}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* The evidence */}
+          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>
+            The record
+          </div>
+          <div style={{ border: `1px solid ${S.line}`, borderRadius: 9, overflow: "hidden", marginBottom: 26 }}>
+            {co.log.map((l, i) => (
+              <div key={l.ref} style={{
+                display: "flex", gap: 12, alignItems: "flex-start", padding: "11px 15px",
+                borderTop: i ? `1px solid ${S.line}` : "none",
+              }}>
+                <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, flexShrink: 0, width: 74 }}>{l.at}</span>
+                <span style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(l.craft), flexShrink: 0, width: 132, letterSpacing: ".04em" }}>
+                  {l.craft}
+                </span>
+                <span style={{ fontSize: 13, color: S.dim, lineHeight: 1.55, flex: 1, minWidth: 0 }}>{l.what}</span>
+                <a href={REPO + l.ref} target="_blank" rel="noopener noreferrer"
+                  onClick={() => track("outbound", { to: REPO + l.ref, kind: "collab_commit" })}
+                  style={{ fontFamily: S.mono, fontSize: 11, color: S.link, flexShrink: 0 }}>{l.ref} <span className="arw">↗</span></a>
+              </div>
+            ))}
+          </div>
+
+          {/* What is still open — a collab nobody can join is a case study */}
+          {co.openings?.length > 0 && (
+            <>
+              <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>
+                Still open
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 12 }}>
+                {co.openings.map((o) => (
+                  <div key={o.craft} style={{
+                    border: `1px dashed ${S.line}`, borderRadius: 9, padding: "15px 17px", background: "transparent",
+                  }}>
+                    <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(o.craft), letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 7 }}>
+                      {o.craft}
+                    </div>
+                    <p style={{ fontSize: 12.5, color: S.dim, lineHeight: 1.6 }}>{o.need}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </article>
+      ))}
     </>
   );
 }

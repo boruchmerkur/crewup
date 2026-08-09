@@ -338,6 +338,129 @@ export const TOOLS = [
    4. GLOSSARY
    ═══════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════
+   5. COLLABS — the site's own argument, demonstrated
+
+   A collab is a piece of work split by CRAFT, with a public record of who
+   brought which part. The board asks "who needs help"; this answers "what
+   did we build together, and who did which piece".
+
+   Two rules, and they are the whole value of the section:
+
+   1. THE LOG IS EVIDENCE, NOT NARRATIVE. Every entry carries the commit it
+      refers to. Anyone can check it against
+      github.com/boruchmerkur/crewup. A collab log that cannot be verified is
+      marketing, and the first one setting that precedent would poison the
+      rest.
+   2. CONTRIBUTORS ARE DESCRIBED AS WHAT THEY ARE. One of the two here is an
+      AI, labelled as one. Nothing is gained by blurring that, and the split
+      is more interesting when it is accurate: it is a real division of
+      labour, not a fictional team.
+
+   Static on purpose, like the playbook — the first collab has to survive
+   every function being down, because it is the thing that explains the site.
+   Live, joinable collabs go through /api/collabs when there are people to
+   join them; the section renders both from the same shape.
+   ═══════════════════════════════════════════════════════════════ */
+
+export const COMMUNITY = "general";
+
+export const COLLABS = [
+  {
+    id: "crewup-itself",
+    title: "Crewup itself",
+    status: "shipped",
+    community: "general",
+    started: "2026-08-06",
+    one: "The site you are reading, built in two days as its own first demonstration.",
+    why:
+      "A site arguing that specialised people accomplish more together should be able to " +
+      "show its own working. This is that: the same fourteen commits that built crewup, " +
+      "sorted by the craft each one belonged to. Nothing here is a mock-up of a " +
+      "collaboration — it is the collaboration, written down as it happened.",
+    roles: [
+      {
+        craft: "Direction & editorial",
+        who: "Boruch Merkur",
+        kind: "human",
+        brought:
+          "Named the thing and bought the domain. Made every call that needed taste rather " +
+          "than measurement: that the hero should open on a story instead of a slogan, that " +
+          "the buttons read dated, that the dark greys were unreadable, that the logo mark " +
+          "was redundant. Set the standard that got applied.",
+      },
+      {
+        craft: "Feed engineering",
+        who: "Claude (AI pair)",
+        kind: "ai",
+        brought:
+          "RSS and Atom parsing across thirty sources with five different image conventions, " +
+          "the four-step proxy fallback, and the summary extraction that strips syndication " +
+          "boilerplate before measuring length.",
+      },
+      {
+        craft: "Infrastructure & deploy",
+        who: "Claude (AI pair)",
+        kind: "ai",
+        brought:
+          "Diagnosed why every /api/* route had been 404ing since launch — drag-and-drop " +
+          "deploys never run a build, so the functions shipped without dependencies. Moved " +
+          "the site to real builds, then added the CSP and the crawler shell.",
+      },
+      {
+        craft: "Design",
+        who: "Boruch Merkur · Claude (AI pair)",
+        kind: "both",
+        brought:
+          "Direction from one side, execution against a measured brief from the other: pill " +
+          "CTAs with cursor-tracked light, a neutral ground lit from a warm side, and a hero " +
+          "that leads with whatever the feed thinks is most interesting right now.",
+      },
+      {
+        craft: "Accessibility",
+        who: "Claude (AI pair)",
+        kind: "ai",
+        brought:
+          "Turned 'some text is hard to read' into numbers: every token measured against the " +
+          "ground, the worst at 1.88:1, all of them lifted past 4.5:1, then verified by " +
+          "walking every rendered text node on the live page.",
+      },
+      {
+        craft: "Domain & deliverability",
+        who: "Boruch Merkur",
+        kind: "human",
+        brought:
+          "Held the registrar. Published SPF, a null DKIM and a strict DMARC by hand, then " +
+          "cleared the duplicate record that would have voided the policy entirely.",
+      },
+    ],
+    log: [
+      { at: "2026-08-06", craft: "Feed engineering", ref: "5759954",
+        what: "Feed, board, playbook, toolbox and glossary; the Netlify edge and function layer." },
+      { at: "2026-08-06", craft: "Direction & editorial", ref: "a8646eb",
+        what: "Renamed Collab to Crewup across the codebase, storage keys included, to match the domain." },
+      { at: "2026-08-06", craft: "Infrastructure & deploy", ref: "9be44a7",
+        what: "A CSP written against what the app actually does, a static shell for crawlers, and a fuller schema.org graph." },
+      { at: "2026-08-07", craft: "Feed engineering", ref: "bd59991",
+        what: "Summaries drawn from content:encoded instead of the teaser, and images picked by size rather than order." },
+      { at: "2026-08-07", craft: "Direction & editorial", ref: "6d20772",
+        what: "Replaced the marketing hero with the top story — the call that the site should show itself, not describe itself." },
+      { at: "2026-08-07", craft: "Design", ref: "8cf48ad",
+        what: "CTAs reworked into pills with a highlight that follows the cursor." },
+      { at: "2026-08-07", craft: "Design", ref: "391ae38",
+        what: "Primary button thinned to a lit outline — weight taken off the type and put into the edge." },
+      { at: "2026-08-07", craft: "Accessibility", ref: "ce8cc68",
+        what: "Every text colour lifted past 4.5:1; the accents allowed to show." },
+      { at: "2026-08-07", craft: "Design", ref: "6b9aa58",
+        what: "Blue-black ground neutralised and lit from a warm side." },
+    ],
+    openings: [
+      { craft: "Writing", need: "The playbook is twelve practices. It could be thirty, and they should not all be in one voice." },
+      { craft: "Feed curation", need: "Four sources are dead at origin and the list leans Western and English. Replacements welcome." },
+    ],
+  },
+];
+
 export const GLOSSARY = [
   { term: "ADR", def: "Architecture Decision Record. A short doc capturing one decision, its context, and its consequences. Lives in the repo so the reasoning survives the people." },
   { term: "Async-first", def: "Defaulting to written, non-blocking communication. Meetings become the exception that needs justification, not the norm." },
