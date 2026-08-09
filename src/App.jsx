@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS } from "./data.js";
+import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS, MO } from "./data.js";
 import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved, pickFeatured } from "./lib.js";
 import { track } from "./analytics.js";
 import Board from "./Board.jsx";
@@ -453,7 +453,30 @@ function Home({ setView, items, saved, live, loading }) {
         </div>
       </section>
 
-      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 28px 80px" }}>
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 28px 8px" }}>
+        <div style={{ maxWidth: 620, marginBottom: 26 }}>
+          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
+            How this works
+          </div>
+          <h2 style={{ fontFamily: S.disp, fontSize: 26, fontWeight: 600, letterSpacing: "-.025em", marginBottom: 12, lineHeight: 1.2 }}>
+            A working library for people who build things together
+          </h2>
+          <p style={{ fontSize: 14.5, color: S.dim, lineHeight: 1.65 }}>
+            Everything below is checkable against the code that runs this site. A rule that
+            quietly stopped being true would be worse than never having stated it.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 1, background: S.line, borderRadius: 10, overflow: "hidden" }}>
+          {MO.map((m) => (
+            <div key={m.k} style={{ background: S.bg, padding: "20px 22px" }}>
+              <div style={{ fontFamily: S.disp, fontSize: 15, fontWeight: 600, marginBottom: 7, letterSpacing: "-.01em" }}>{m.k}</div>
+              <p style={{ fontSize: 13, color: S.dim, lineHeight: 1.6 }}>{m.v}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "42px 28px 80px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 1, background: S.line, borderRadius: 10, overflow: "hidden" }}>
           {VIEWS.filter((v) => v.id !== "home" && v.id !== "saved").map((v) => (
             <button key={v.id} onClick={() => setView(v.id)} className="card lift" style={{
@@ -672,7 +695,112 @@ const CRAFT_COLOUR = {
 };
 const craftColour = (c) => readable(CRAFT_COLOUR[c] || C.violet);
 
+/* Offer to take an opening. Held until the author releases it — the writer
+   sees their own held offer so it is not a void, everyone else sees only what
+   has been released. Same posture as the board. */
+function Propose({ collabId, craft }) {
+  const [open, setOpen] = useState(false);
+  const [f, setF] = useState({ name: "", contact: "", note: "", website: "" });
+  const [state, setState] = useState("");     // "" | busy | held | error
+  const [err, setErr] = useState("");
+  const opened = useRef(Date.now());
+
+  const send = async () => {
+    setState("busy"); setErr("");
+    try {
+      const r = await fetch("/api/collabs", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ act: "propose", id: collabId, craft, ...f, elapsed: Date.now() - opened.current }),
+      });
+      const d = await r.json();
+      if (!r.ok) { setErr(d.error || "That didn't go through."); setState("error"); return; }
+      track("collab_propose", { collab: collabId, craft });
+      setState("held");
+    } catch {
+      setErr("Network trouble — try again."); setState("error");
+    }
+  };
+
+  if (state === "held") {
+    return (
+      <div style={{ marginTop: 10, fontFamily: S.mono, fontSize: 11, color: C.mint, lineHeight: 1.6 }}>
+        Sent. It's held until the author releases it — you'll see it here once they do.
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button onClick={() => { setOpen(true); opened.current = Date.now(); }}
+        style={{ marginTop: 12, background: "none", border: "none", padding: 0, cursor: "pointer",
+                 fontFamily: S.mono, fontSize: 11, color: S.link }}>
+        offer to take this <span className="arw">→</span>
+      </button>
+    );
+  }
+
+  const field = (k, ph, lines) => lines ? (
+    <textarea value={f[k]} onChange={(e) => setF((p) => ({ ...p, [k]: e.target.value }))} placeholder={ph} rows={lines}
+      style={{ width: "100%", background: S.bg, border: `1px solid ${S.line}`, borderRadius: 6, color: S.text,
+               padding: "8px 10px", fontSize: 12.5, fontFamily: S.body, resize: "vertical", marginTop: 7 }} />
+  ) : (
+    <input value={f[k]} onChange={(e) => setF((p) => ({ ...p, [k]: e.target.value }))} placeholder={ph}
+      style={{ width: "100%", background: S.bg, border: `1px solid ${S.line}`, borderRadius: 6, color: S.text,
+               padding: "8px 10px", fontSize: 12.5, fontFamily: S.body, marginTop: 7 }} />
+  );
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      {field("name", "Your name")}
+      {field("contact", "Where to reach you — GitHub, site, email")}
+      {field("note", "What you'd bring to this, in a line or two", 3)}
+      {/* Honeypot. Real people never fill a field they cannot see. */}
+      <input value={f.website} onChange={(e) => setF((p) => ({ ...p, website: e.target.value }))}
+        tabIndex={-1} autoComplete="off" aria-hidden="true"
+        style={{ position: "absolute", left: -9999, width: 1, height: 1, opacity: 0 }} />
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 9 }}>
+        <button onClick={send} disabled={state === "busy" || !f.name.trim() || !f.note.trim()}
+          className="cta cta-primary" style={{ fontSize: 11.5, padding: "8px 16px" }}>
+          <span>{state === "busy" ? "sending…" : "send"}</span>
+        </button>
+        <button onClick={() => setOpen(false)}
+          style={{ background: "none", border: "none", cursor: "pointer", fontFamily: S.mono, fontSize: 11, color: S.faint }}>
+          cancel
+        </button>
+      </div>
+      {err && <div style={{ marginTop: 8, fontSize: 11.5, color: C.rose, fontFamily: S.mono }}>{err}</div>}
+    </div>
+  );
+}
+
 function Collabs() {
+  const [live, setLive] = useState([]);
+
+  /* Live collabs come from /api/collabs; the first one is static so the
+     section still explains itself when the function is down. Records are
+     merged BY ID, because a proposal against a static collab's opening is
+     stored in a shell record that has to fold back onto it. */
+  useEffect(() => {
+    let dead = false;
+    fetch("/api/collabs")
+      .then((r) => (r.ok ? r.json() : { collabs: [] }))
+      .then((d) => { if (!dead) setLive(Array.isArray(d.collabs) ? d.collabs : []); })
+      .catch(() => { /* static content carries the section */ });
+    return () => { dead = true; };
+  }, []);
+
+  const all = useMemo(() => {
+    const byId = new Map(live.map((c) => [c.id, c]));
+    const merged = COLLABS.map((c) => {
+      const l = byId.get(c.id);
+      byId.delete(c.id);
+      return l ? { ...c, proposals: l.proposals || [] } : c;
+    });
+    // Anything live that is not a shell for a static collab is its own entry.
+    return [...merged, ...[...byId.values()].filter((c) => !c.shell)];
+  }, [live]);
+
   return (
     <>
       <SectionHead eyebrow="Collabs" title="What we built together, and who brought what"
@@ -680,7 +808,7 @@ function Collabs() {
               brought, and a log of the actual changes — every entry linking to the commit it refers to,
               so none of it has to be taken on trust." />
 
-      {COLLABS.map((co) => (
+      {all.map((co) => (
         <article key={co.id} style={{ marginBottom: 44 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
             <h3 style={{ fontFamily: S.disp, fontSize: 22, fontWeight: 600, letterSpacing: "-.02em" }}>{co.title}</h3>
@@ -751,16 +879,38 @@ function Collabs() {
                 Still open
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 12 }}>
-                {co.openings.map((o) => (
-                  <div key={o.craft} style={{
-                    border: `1px dashed ${S.line}`, borderRadius: 9, padding: "15px 17px", background: "transparent",
-                  }}>
-                    <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(o.craft), letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 7 }}>
-                      {o.craft}
+                {co.openings.map((o) => {
+                  const taken = (co.proposals || []).filter((p) => p.craft === o.craft);
+                  return (
+                    <div key={o.craft} style={{
+                      border: `1px dashed ${S.line}`, borderRadius: 9, padding: "15px 17px", background: "transparent",
+                    }}>
+                      <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(o.craft), letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 7 }}>
+                        {o.craft}
+                      </div>
+                      <p style={{ fontSize: 12.5, color: S.dim, lineHeight: 1.6 }}>{o.need}</p>
+
+                      {taken.map((p) => (
+                        <div key={p.pid} style={{
+                          marginTop: 11, paddingTop: 11, borderTop: `1px solid ${S.line}`,
+                          opacity: p.held ? 0.75 : 1,
+                        }}>
+                          <div style={{ fontFamily: S.disp, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                            {p.name}
+                            {p.held && p.mine && (
+                              <span style={{ fontFamily: S.mono, fontSize: 8.5, letterSpacing: ".07em", color: S.faint, border: `1px solid ${S.line}`, borderRadius: 4, padding: "1px 5px" }}>
+                                AWAITING REVIEW
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ fontSize: 12, color: S.dim, lineHeight: 1.55, marginTop: 4 }}>{p.note}</p>
+                        </div>
+                      ))}
+
+                      <Propose collabId={co.id} craft={o.craft} />
                     </div>
-                    <p style={{ fontSize: 12.5, color: S.dim, lineHeight: 1.6 }}>{o.need}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

@@ -365,6 +365,45 @@ export const TOOLS = [
 
 export const COMMUNITY = "general";
 
+/* ═══════════════════════════════════════════════════════════════
+   HOW THIS WORKS — the operating rules, stated rather than implied.
+
+   Every line here is checkable against the code in this repo. If one of
+   them stops being true, change the line or change the code — a stated
+   principle that quietly stopped holding is worse than never stating it.
+   ═══════════════════════════════════════════════════════════════ */
+
+export const MO = [
+  {
+    k: "Chosen by hand, not ranked by a model",
+    v: "Thirty feeds, picked deliberately and listed in full on the Sources page. Sorting is newest-first or by how much an item is actually about working together — and that score is a plain keyword list in the source, not a model you can't inspect.",
+  },
+  {
+    k: "The written half never goes down",
+    v: "The playbook, toolbox and glossary are about eight thousand words shipped inside the page. If every feed and every function fails, there is still something here worth reading.",
+  },
+  {
+    k: "No accounts, nothing to join",
+    v: "There is no sign-up, because nothing here needs to know who you are. Your reading list is saved in your own browser and never reaches a server.",
+  },
+  {
+    k: "Counted, not followed",
+    v: "Pageviews are counted server-side against an IP hashed fresh each day, so the count cannot be tied back to a person or joined up across days. Which links get clicked is reported to this site's own dashboard. There is no third-party analytics, no advertising network, and no cookie for either.",
+  },
+  {
+    k: "Third parties stay at arm's length",
+    v: "Feed images are fetched through this origin rather than loaded from a dozen publisher CDNs, so reading the feed doesn't announce you to all of them. If that proxy is down the image loads directly — working beats pure.",
+  },
+  {
+    k: "Nobody paid to be here",
+    v: "No affiliate links, no sponsored placements, no rankings. The toolbox says what each tool is bad at as well as good at, which is the part a vendor would object to.",
+  },
+  {
+    k: "Claims come with receipts",
+    v: "Collabs record who did which part, and every entry links to the change it refers to. Anything asserted here should be checkable by someone who doesn't trust us.",
+  },
+];
+
 export const COLLABS = [
   {
     id: "crewup-itself",
@@ -381,7 +420,7 @@ export const COLLABS = [
     roles: [
       {
         craft: "Direction & editorial",
-        who: "Boruch Merkur",
+        who: "The editor",
         kind: "human",
         brought:
           "Named the thing and bought the domain. Made every call that needed taste rather " +
@@ -409,7 +448,7 @@ export const COLLABS = [
       },
       {
         craft: "Design",
-        who: "Boruch Merkur · Claude (AI pair)",
+        who: "The editor · Claude (AI pair)",
         kind: "both",
         brought:
           "Direction from one side, execution against a measured brief from the other: pill " +
@@ -427,7 +466,7 @@ export const COLLABS = [
       },
       {
         craft: "Domain & deliverability",
-        who: "Boruch Merkur",
+        who: "The editor",
         kind: "human",
         brought:
           "Held the registrar. Published SPF, a null DKIM and a strict DMARC by hand, then " +
