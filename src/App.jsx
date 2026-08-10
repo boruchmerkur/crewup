@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS, MO } from "./data.js";
+import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS, MO, THESIS } from "./data.js";
 import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved, pickFeatured } from "./lib.js";
 import { track } from "./analytics.js";
 import Board from "./Board.jsx";
@@ -339,6 +339,11 @@ function Home({ setView, items, saved, live, loading }) {
   // One ordered list, split between the hero and the strip below it, so the
   // lead story never appears twice on the page.
   const picks = useMemo(() => pickFeatured(items, 6), [items]);
+  // Hottest practices first, straight from PLAYBOOK so the two can't drift.
+  const holdsUp = useMemo(() => {
+    const rank = { high: 0, medium: 1, low: 2 };
+    return [...PLAYBOOK].sort((a, b) => rank[a.heat] - rank[b.heat]).slice(0, 6);
+  }, []);
   const hero = picks[0];
 
   // Colour-coded to the same accents the feed uses for its tags, so the strip
@@ -454,24 +459,38 @@ function Home({ setView, items, saved, live, loading }) {
       </section>
 
       <section style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 28px 8px" }}>
-        <div style={{ maxWidth: 620, marginBottom: 26 }}>
-          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
-            How this works
+        <div style={{ maxWidth: 680, marginBottom: 30 }}>
+          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 14 }}>
+            The argument
           </div>
-          <h2 style={{ fontFamily: S.disp, fontSize: 26, fontWeight: 600, letterSpacing: "-.025em", marginBottom: 12, lineHeight: 1.2 }}>
-            A working library for people who build things together
+          <h2 style={{ fontFamily: S.disp, fontSize: 30, fontWeight: 600, letterSpacing: "-.028em", marginBottom: 14, lineHeight: 1.18 }}>
+            {THESIS.head}
           </h2>
-          <p style={{ fontSize: 14.5, color: S.dim, lineHeight: 1.65 }}>
-            Everything below is checkable against the code that runs this site. A rule that
-            quietly stopped being true would be worse than never having stated it.
-          </p>
+          <p style={{ fontSize: 15, color: S.dim, lineHeight: 1.68 }}>{THESIS.body}</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 1, background: S.line, borderRadius: 10, overflow: "hidden" }}>
-          {MO.map((m) => (
-            <div key={m.k} style={{ background: S.bg, padding: "20px 22px" }}>
-              <div style={{ fontFamily: S.disp, fontSize: 15, fontWeight: 600, marginBottom: 7, letterSpacing: "-.01em" }}>{m.k}</div>
-              <p style={{ fontSize: 13, color: S.dim, lineHeight: 1.6 }}>{m.v}</p>
-            </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
+          {holdsUp.map((pr) => (
+            <button key={pr.id} onClick={() => setView("playbook")} className="card lift"
+              style={{
+                textAlign: "left", cursor: "pointer", background: S.panel, color: S.text,
+                border: `1px solid ${S.line}`, borderRadius: 10, padding: "18px 20px 16px",
+                display: "flex", flexDirection: "column", gap: 8,
+              }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontFamily: S.mono, fontSize: 9.5, color: C.mint, letterSpacing: ".08em", textTransform: "uppercase" }}>
+                  {pr.family}
+                </span>
+              </div>
+              <div style={{ fontFamily: S.disp, fontSize: 16.5, fontWeight: 600, letterSpacing: "-.015em" }}>{pr.name}</div>
+              <p style={{ fontSize: 13.5, color: S.dim, lineHeight: 1.6 }}>{pr.one}</p>
+              <div style={{ display: "flex", gap: 8, alignItems: "baseline", marginTop: "auto", paddingTop: 8 }}>
+                <span style={{ fontFamily: S.mono, fontSize: 9, color: S.faint, letterSpacing: ".08em", textTransform: "uppercase", flexShrink: 0 }}>
+                  tell
+                </span>
+                <span style={{ fontSize: 12.5, color: S.text, lineHeight: 1.5 }}>{pr.metric}</span>
+              </div>
+            </button>
           ))}
         </div>
       </section>
@@ -486,6 +505,29 @@ function Home({ setView, items, saved, live, loading }) {
               <div style={{ fontFamily: S.disp, fontSize: 19, fontWeight: 600, marginBottom: 8, letterSpacing: "-.015em" }}>{v.label}</div>
               <div style={{ fontSize: 13.5, color: S.dim, lineHeight: 1.5 }}>{v.hint}</div>
             </button>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 28px 8px" }}>
+        <div style={{ maxWidth: 620, marginBottom: 22 }}>
+          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 12 }}>
+            House rules
+          </div>
+          <h2 style={{ fontFamily: S.disp, fontSize: 22, fontWeight: 600, letterSpacing: "-.02em", marginBottom: 12, lineHeight: 1.2 }}>
+            How the site itself is run
+          </h2>
+          <p style={{ fontSize: 14.5, color: S.dim, lineHeight: 1.65 }}>
+            Everything below is checkable against the code that runs this site. A rule that
+            quietly stopped being true would be worse than never having stated it.
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 1, background: S.line, borderRadius: 10, overflow: "hidden" }}>
+          {MO.map((m) => (
+            <div key={m.k} style={{ background: S.bg, padding: "20px 22px" }}>
+              <div style={{ fontFamily: S.disp, fontSize: 15, fontWeight: 600, marginBottom: 7, letterSpacing: "-.01em" }}>{m.k}</div>
+              <p style={{ fontSize: 13, color: S.dim, lineHeight: 1.6 }}>{m.v}</p>
+            </div>
           ))}
         </div>
       </section>

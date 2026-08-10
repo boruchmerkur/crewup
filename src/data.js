@@ -373,6 +373,19 @@ export const COMMUNITY = "general";
    principle that quietly stopped holding is worse than never stating it.
    ═══════════════════════════════════════════════════════════════ */
 
+/* The argument the whole site rests on. Deliberately opinionated: a neutral
+   statement of "collaboration is good" would be worth nothing to a reader who
+   already knows that. Each claim is answered at length by a PLAYBOOK entry. */
+
+export const THESIS = {
+  head: "Most teams are not short of talent. They are short of the seams between people.",
+  body:
+    "Almost nothing hard gets built by one person any more, and almost none of the difficulty " +
+    "is in the individual work. It is in the handoffs — the review that sat for three days, the " +
+    "decision nobody wrote down, the context living in one person's head. Those are the seams, " +
+    "and they are learnable. This is what we have found holds up.",
+};
+
 export const MO = [
   {
     k: "Chosen by hand, not ranked by a model",
@@ -399,8 +412,8 @@ export const MO = [
     v: "No affiliate links, no sponsored placements, no rankings. The toolbox says what each tool is bad at as well as good at, which is the part a vendor would object to.",
   },
   {
-    k: "Claims come with receipts",
-    v: "Collabs record who did which part, and every entry links to the change it refers to. Anything asserted here should be checkable by someone who doesn't trust us.",
+    k: "Claims open into the thing itself",
+    v: "Every craft listed on a collab links straight into the working result rather than describing it. If something here cannot be opened and used, it should not be claimed.",
   },
 ];
 
