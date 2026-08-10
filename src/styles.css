@@ -2,6 +2,18 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
+
+/* ── Nothing may push the page sideways ──────────────────────────
+   A grid or flex item's default min-width is AUTO, meaning it refuses to
+   shrink below its own content — so one long word, one wide image or one
+   unbroken line of code silently widens the whole document and the left
+   edge scrolls out of view. Every track here is allowed to shrink, long
+   words are allowed to break, and the page is told outright never to
+   scroll horizontally. Fixes the class of bug, not one instance of it. */
+html,body{max-width:100%;overflow-x:hidden}
+.hero>*,.feat>*,.gridwrap>*,.card,.row,.shell>*{min-width:0}
+img,svg,canvas,video{max-width:100%}
+h1,h2,h3,h4,p,a,span,li{overflow-wrap:anywhere}
 body{background:#101010;color:#E8E6E3;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
@@ -101,6 +113,8 @@ a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
 }
 @media(max-width:560px){
   h1{font-size:36px!important}
+  /* Desktop gutters cost 56px of a 375px screen. */
+  section{padding-left:16px!important;padding-right:16px!important}
 }
 
 /* ── Atmosphere ─────────────────────────────────────────── */
