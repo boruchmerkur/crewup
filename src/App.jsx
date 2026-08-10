@@ -259,7 +259,7 @@ export default function App() {
           )}
 
           {view === "board" && <Board />}
-          {view === "collabs" && <Collabs />}
+          {view === "collabs" && <Collabs setView={setView} />}
           {view === "playbook" && <Playbook openCard={openCard} setOpenCard={setOpenCard} />}
           {view === "toolbox" && <Toolbox />}
           {view === "glossary" && <Glossary />}
@@ -683,8 +683,6 @@ function Playbook({ openCard, setOpenCard }) {
    point: it is what separates this from a case study nobody can check.
    ═══════════════════════════════════════════════════════════════ */
 
-const REPO = "https://github.com/boruchmerkur/crewup/commit/";
-
 const CRAFT_COLOUR = {
   "Direction & editorial": C.amber,
   "Feed engineering": C.sky,
@@ -774,13 +772,13 @@ function Propose({ collabId, craft }) {
   );
 }
 
-function Collabs() {
+function Collabs({ setView }) {
   const [live, setLive] = useState([]);
 
   /* Live collabs come from /api/collabs; the first one is static so the
-     section still explains itself when the function is down. Records are
-     merged BY ID, because a proposal against a static collab's opening is
-     stored in a shell record that has to fold back onto it. */
+     section still stands when the function is down. Merged BY ID, because a
+     proposal against a static collab's opening is stored in a shell record
+     that has to fold back onto it. */
   useEffect(() => {
     let dead = false;
     fetch("/api/collabs")
@@ -797,104 +795,83 @@ function Collabs() {
       byId.delete(c.id);
       return l ? { ...c, proposals: l.proposals || [] } : c;
     });
-    // Anything live that is not a shell for a static collab is its own entry.
     return [...merged, ...[...byId.values()].filter((c) => !c.shell)];
   }, [live]);
 
   return (
     <>
-      <SectionHead eyebrow="Collabs" title="What we built together, and who brought what"
-        body="A collab is a piece of work split by craft. Each one lists the people, what each of them
-              brought, and a log of the actual changes — every entry linking to the commit it refers to,
-              so none of it has to be taken on trust." />
+      <SectionHead eyebrow="Collabs" title="Six crafts, one site, and a door into each"
+        body="A collab is work split between people who are good at different things. Every card below
+              is one specialism, what it actually produced, and a way straight into the result — because
+              the case for splitting work is easier to see than to argue. The openings at the end are real." />
 
       {all.map((co) => (
-        <article key={co.id} style={{ marginBottom: 44 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+        <section key={co.id} style={{ maxWidth: 1280, margin: "0 auto", padding: "0 28px 70px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
             <h3 style={{ fontFamily: S.disp, fontSize: 22, fontWeight: 600, letterSpacing: "-.02em" }}>{co.title}</h3>
             <span style={{
-              fontFamily: S.mono, fontSize: 9.5, letterSpacing: ".09em", textTransform: "uppercase",
+              fontFamily: S.mono, fontSize: 9.5, letterSpacing: ".08em", textTransform: "uppercase",
               color: co.status === "shipped" ? C.mint : S.link,
               border: `1px solid ${co.status === "shipped" ? C.mint : S.link}55`,
-              borderRadius: 999, padding: "3px 9px",
+              borderRadius: 4, padding: "2px 7px",
             }}>{co.status}</span>
             <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, marginLeft: "auto" }}>
-              {co.roles.length} crafts · {co.log.length} changes
+              {co.brought?.length || 0} crafts · {co.openings?.length || 0} openings
             </span>
           </div>
 
           <p style={{ fontSize: 15, color: S.text, lineHeight: 1.6, marginBottom: 10, maxWidth: 720 }}>{co.one}</p>
           <p style={{ fontSize: 13.5, color: S.dim, lineHeight: 1.65, marginBottom: 26, maxWidth: 720 }}>{co.why}</p>
 
-          {/* Who brought what */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 12, marginBottom: 30 }}>
-            {co.roles.map((r) => (
-              <div key={r.craft} className="card" style={{
-                background: S.panel, border: `1px solid ${S.line}`, borderRadius: 9, padding: "15px 17px",
-                borderTop: `2px solid ${craftColour(r.craft)}`,
-              }}>
-                <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(r.craft), letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 7 }}>
-                  {r.craft}
-                </div>
-                <div style={{ fontFamily: S.disp, fontSize: 14.5, fontWeight: 600, marginBottom: 7, display: "flex", alignItems: "center", gap: 7 }}>
-                  {r.who}
-                  {r.kind === "ai" && (
-                    <span title="This contributor is an AI" style={{
-                      fontFamily: S.mono, fontSize: 8.5, letterSpacing: ".08em", color: S.faint,
-                      border: `1px solid ${S.line}`, borderRadius: 4, padding: "1px 5px",
-                    }}>AI</span>
+          {co.brought?.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12, marginBottom: 34 }}>
+              {co.brought.map((b) => (
+                <button key={b.craft} onClick={() => b.view && setView(b.view)}
+                  className="card lift"
+                  style={{
+                    textAlign: "left", cursor: b.view ? "pointer" : "default",
+                    background: S.panel, color: S.text,
+                    border: `1px solid ${S.line}`, borderTop: `2px solid ${craftColour(b.craft)}`,
+                    borderRadius: 10, padding: "18px 20px 16px",
+                    display: "flex", flexDirection: "column", gap: 9,
+                  }}>
+                  <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(b.craft), letterSpacing: ".08em", textTransform: "uppercase" }}>
+                    {b.craft}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                    <span style={{ fontFamily: S.disp, fontSize: 30, fontWeight: 600, letterSpacing: "-.03em", color: craftColour(b.craft), lineHeight: 1 }}>
+                      {b.stat}
+                    </span>
+                    <span style={{ fontFamily: S.mono, fontSize: 10.5, color: S.faint }}>{b.unit}</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: S.dim, lineHeight: 1.6 }}>{b.what}</p>
+                  {b.view && (
+                    <span style={{ fontFamily: S.mono, fontSize: 11, color: S.link, marginTop: "auto", paddingTop: 4 }}>
+                      {b.cta} <span className="arw">→</span>
+                    </span>
                   )}
-                </div>
-                <p style={{ fontSize: 12.5, color: S.dim, lineHeight: 1.6 }}>{r.brought}</p>
-              </div>
-            ))}
-          </div>
+                </button>
+              ))}
+            </div>
+          )}
 
-          {/* The evidence */}
-          <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>
-            The record
-          </div>
-          <div style={{ border: `1px solid ${S.line}`, borderRadius: 9, overflow: "hidden", marginBottom: 26 }}>
-            {co.log.map((l, i) => (
-              <div key={l.ref} style={{
-                display: "flex", gap: 12, alignItems: "flex-start", padding: "11px 15px",
-                borderTop: i ? `1px solid ${S.line}` : "none",
-              }}>
-                <span style={{ fontFamily: S.mono, fontSize: 11, color: S.faint, flexShrink: 0, width: 74 }}>{l.at}</span>
-                <span style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(l.craft), flexShrink: 0, width: 132, letterSpacing: ".04em" }}>
-                  {l.craft}
-                </span>
-                <span style={{ fontSize: 13, color: S.dim, lineHeight: 1.55, flex: 1, minWidth: 0 }}>{l.what}</span>
-                <a href={REPO + l.ref} target="_blank" rel="noopener noreferrer"
-                  onClick={() => track("outbound", { to: REPO + l.ref, kind: "collab_commit" })}
-                  style={{ fontFamily: S.mono, fontSize: 11, color: S.link, flexShrink: 0 }}>{l.ref} <span className="arw">↗</span></a>
-              </div>
-            ))}
-          </div>
-
-          {/* What is still open — a collab nobody can join is a case study */}
           {co.openings?.length > 0 && (
             <>
               <div style={{ fontFamily: S.mono, fontSize: 10, color: S.link, letterSpacing: ".09em", textTransform: "uppercase", marginBottom: 12 }}>
                 Still open
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
                 {co.openings.map((o) => {
                   const taken = (co.proposals || []).filter((p) => p.craft === o.craft);
                   return (
-                    <div key={o.craft} style={{
-                      border: `1px dashed ${S.line}`, borderRadius: 9, padding: "15px 17px", background: "transparent",
-                    }}>
+                    <div key={o.craft} style={{ border: `1px dashed ${S.line}`, borderRadius: 9, padding: "15px 17px" }}>
                       <div style={{ fontFamily: S.mono, fontSize: 10, color: craftColour(o.craft), letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 7 }}>
                         {o.craft}
                       </div>
                       <p style={{ fontSize: 12.5, color: S.dim, lineHeight: 1.6 }}>{o.need}</p>
 
                       {taken.map((p) => (
-                        <div key={p.pid} style={{
-                          marginTop: 11, paddingTop: 11, borderTop: `1px solid ${S.line}`,
-                          opacity: p.held ? 0.75 : 1,
-                        }}>
+                        <div key={p.pid} style={{ marginTop: 11, paddingTop: 11, borderTop: `1px solid ${S.line}`, opacity: p.held ? 0.75 : 1 }}>
                           <div style={{ fontFamily: S.disp, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
                             {p.name}
                             {p.held && p.mine && (
@@ -914,8 +891,10 @@ function Collabs() {
               </div>
             </>
           )}
-        </article>
+        </section>
       ))}
+
+      <Footer />
     </>
   );
 }

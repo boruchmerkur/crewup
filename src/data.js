@@ -349,7 +349,7 @@ export const TOOLS = [
 
    1. THE LOG IS EVIDENCE, NOT NARRATIVE. Every entry carries the commit it
       refers to. Anyone can check it against
-      github.com/boruchmerkur/crewup. A collab log that cannot be verified is
+      the repository. A collab log that cannot be verified is
       marketing, and the first one setting that precedent would poison the
       rest.
    2. CONTRIBUTORS ARE DESCRIBED AS WHAT THEY ARE. One of the two here is an
@@ -411,91 +411,99 @@ export const COLLABS = [
     status: "shipped",
     community: "general",
     started: "2026-08-06",
-    one: "The site you are reading, built in two days as its own first demonstration.",
+    one: "Six crafts, two days, one site — and every part of it is on this screen right now.",
     why:
-      "A site arguing that specialised people accomplish more together should be able to " +
-      "show its own working. This is that: the same fourteen commits that built crewup, " +
-      "sorted by the craft each one belonged to. Nothing here is a mock-up of a " +
-      "collaboration — it is the collaboration, written down as it happened.",
-    roles: [
-      {
-        craft: "Direction & editorial",
-        who: "The editor",
-        kind: "human",
-        brought:
-          "Named the thing and bought the domain. Made every call that needed taste rather " +
-          "than measurement: that the hero should open on a story instead of a slogan, that " +
-          "the buttons read dated, that the dark greys were unreadable, that the logo mark " +
-          "was redundant. Set the standard that got applied.",
-      },
+      "The argument for splitting work by craft is hard to make in the abstract, so this " +
+      "collab makes it concretely: each card below is a specialism, what it produced, and a " +
+      "door straight into the working result. Nothing here is a description of something " +
+      "that exists elsewhere. It is all live, and you can go and use it.",
+
+    /* Each entry points at a section of this site, so the claim and the proof
+       are one click apart. `view` must match an id in VIEWS. */
+    brought: [
       {
         craft: "Feed engineering",
-        who: "Claude (AI pair)",
-        kind: "ai",
-        brought:
-          "RSS and Atom parsing across thirty sources with five different image conventions, " +
-          "the four-step proxy fallback, and the summary extraction that strips syndication " +
-          "boilerplate before measuring length.",
+        stat: "30",
+        unit: "sources, one river",
+        what:
+          "Thirty publishers, five incompatible ways of advertising an image, and four " +
+          "fallbacks for when a feed refuses to answer — flattened into a single stream that " +
+          "sorts by how much an item is really about working together.",
+        view: "feed",
+        cta: "read the feed",
       },
       {
-        craft: "Infrastructure & deploy",
-        who: "Claude (AI pair)",
-        kind: "ai",
-        brought:
-          "Diagnosed why every /api/* route had been 404ing since launch — drag-and-drop " +
-          "deploys never run a build, so the functions shipped without dependencies. Moved " +
-          "the site to real builds, then added the CSP and the crawler shell.",
+        craft: "Writing",
+        stat: "8,000",
+        unit: "words that never go down",
+        what:
+          "Twelve practices, thirty reviewed tools and twenty-two definitions, written to be " +
+          "useful on the worst day — they ship inside the page, so they survive every feed " +
+          "and every server being unreachable.",
+        view: "playbook",
+        cta: "open the playbook",
+      },
+      {
+        craft: "Curation",
+        stat: "30",
+        unit: "tools, no rankings",
+        what:
+          "Grouped by the problem they solve, each with an honest line on what it is bad at. " +
+          "Nobody paid to be here, and the list says so where a vendor would object.",
+        view: "toolbox",
+        cta: "see the toolbox",
+      },
+      {
+        craft: "Infrastructure",
+        stat: "6",
+        unit: "functions at the edge",
+        what:
+          "A feed proxy, an image proxy, two analytics paths and the board — so your browser " +
+          "talks to this origin and nothing else while you read.",
+        view: "sources",
+        cta: "see what it reads",
       },
       {
         craft: "Design",
-        who: "The editor · Claude (AI pair)",
-        kind: "both",
-        brought:
-          "Direction from one side, execution against a measured brief from the other: pill " +
-          "CTAs with cursor-tracked light, a neutral ground lit from a warm side, and a hero " +
-          "that leads with whatever the feed thinks is most interesting right now.",
+        stat: "4.5:1",
+        unit: "contrast floor, everywhere",
+        what:
+          "A dark ground lit from a warm side, cursor-aware controls, and every piece of text " +
+          "on the site measured against what sits behind it rather than eyeballed.",
+        view: "glossary",
+        cta: "see it on the type",
       },
       {
-        craft: "Accessibility",
-        who: "Claude (AI pair)",
-        kind: "ai",
-        brought:
-          "Turned 'some text is hard to read' into numbers: every token measured against the " +
-          "ground, the worst at 1.88:1, all of them lifted past 4.5:1, then verified by " +
-          "walking every rendered text node on the live page.",
-      },
-      {
-        craft: "Domain & deliverability",
-        who: "The editor",
-        kind: "human",
-        brought:
-          "Held the registrar. Published SPF, a null DKIM and a strict DMARC by hand, then " +
-          "cleared the duplicate record that would have voided the policy entirely.",
+        craft: "Community",
+        stat: "0",
+        unit: "accounts required",
+        what:
+          "A board where people post what they need help with and what they are free to take " +
+          "on — no sign-up, no profile, nothing to maintain.",
+        view: "board",
+        cta: "open the board",
       },
     ],
-    log: [
-      { at: "2026-08-06", craft: "Feed engineering", ref: "5759954",
-        what: "Feed, board, playbook, toolbox and glossary; the Netlify edge and function layer." },
-      { at: "2026-08-06", craft: "Direction & editorial", ref: "a8646eb",
-        what: "Renamed Collab to Crewup across the codebase, storage keys included, to match the domain." },
-      { at: "2026-08-06", craft: "Infrastructure & deploy", ref: "9be44a7",
-        what: "A CSP written against what the app actually does, a static shell for crawlers, and a fuller schema.org graph." },
-      { at: "2026-08-07", craft: "Feed engineering", ref: "bd59991",
-        what: "Summaries drawn from content:encoded instead of the teaser, and images picked by size rather than order." },
-      { at: "2026-08-07", craft: "Direction & editorial", ref: "6d20772",
-        what: "Replaced the marketing hero with the top story — the call that the site should show itself, not describe itself." },
-      { at: "2026-08-07", craft: "Design", ref: "8cf48ad",
-        what: "CTAs reworked into pills with a highlight that follows the cursor." },
-      { at: "2026-08-07", craft: "Design", ref: "391ae38",
-        what: "Primary button thinned to a lit outline — weight taken off the type and put into the edge." },
-      { at: "2026-08-07", craft: "Accessibility", ref: "ce8cc68",
-        what: "Every text colour lifted past 4.5:1; the accents allowed to show." },
-      { at: "2026-08-07", craft: "Design", ref: "6b9aa58",
-        what: "Blue-black ground neutralised and lit from a warm side." },
-    ],
+
     openings: [
-      { craft: "Writing", need: "The playbook is twelve practices. It could be thirty, and they should not all be in one voice." },
-      { craft: "Feed curation", need: "Four sources are dead at origin and the list leans Western and English. Replacements welcome." },
+      {
+        craft: "Writing",
+        need:
+          "The playbook is twelve practices deep and could be forty. If you have run " +
+          "postmortems or onboarded contributors for real, that is the missing voice.",
+      },
+      {
+        craft: "Front-end",
+        need:
+          "The feed is one long list. Someone who thinks in reading interfaces could make " +
+          "three thousand items navigable in a way sorting alone never will.",
+      },
+      {
+        craft: "Server-side",
+        need:
+          "About a fifth of feed items have no picture because the feed carries none. " +
+          "Fetching each article's own preview image server-side would close that gap.",
+      },
     ],
   },
 ];
