@@ -1,15 +1,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { C, COMMUNITY } from "./data.js";
 import { track } from "./analytics.js";
+import { S } from "./theme.js";
 import { relTime } from "./lib.js";
 import { HeaderArt, Avatar } from "./Art.jsx";
 
-const S = {
-  bg: "#101010", panel: "#0A0A0B", line: "#24242A", hov: "#17171B",
-  text: "#E8E6E3", dim: "#6B7694", faint: "#3B4252",
-  mono: "'JetBrains Mono',ui-monospace,monospace",
-  disp: "'Space Grotesk',sans-serif",
-};
 
 const LANG_COLOR = {
   JavaScript: "#F1E05A", TypeScript: "#3178C6", Python: "#3572A5", Go: "#00ADD8",

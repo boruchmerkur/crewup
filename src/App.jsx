@@ -2,7 +2,9 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS, MO, THESIS } from "./data.js";
 import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved, pickFeatured } from "./lib.js";
 import { track } from "./analytics.js";
+import { S } from "./theme.js";
 import Board from "./Board.jsx";
+import Room from "./Room.jsx";
 import { Backdrop, ConnectiveField, ArtSlot, Avatar, PresenceStrip, HeaderArt, FeedThumb } from "./Art.jsx";
 
 /* Feeds the pointer position to .cta as --mx/--my so the hover sheen sits
@@ -17,6 +19,7 @@ const VIEWS = [
   { id: "home",     label: "Home",     hint: "What this is" },
   { id: "feed",     label: "Feed",     hint: "Live stream from 30 sources" },
   { id: "board",    label: "Board",    hint: "Who needs help, and who needs work" },
+  { id: "room",     label: "Room",     hint: "Talk, and one shared pad" },
   { id: "collabs",  label: "Collabs",  hint: "Work split by craft, and who brought what" },
   { id: "playbook", label: "Playbook", hint: "How teams actually work together" },
   { id: "toolbox",  label: "Toolbox",  hint: "Tools worth the switching cost" },
@@ -25,16 +28,6 @@ const VIEWS = [
   { id: "saved",    label: "Saved",    hint: "Your reading list" },
 ];
 
-const S = {
-  bg: "#101010", panel: "#0A0A0B", line: "#24242A", hov: "#17171B",
-  text: "#E8E6E3", dim: "#939AA8", faint: "#7E8494",
-  // Brand violet is 3.3:1 on the ground — fine as a fill or a dot,
-  // illegible as small text. Anything that is WORDS uses link instead.
-  link: "#A78BFA",
-  mono: "'JetBrains Mono',ui-monospace,monospace",
-  disp: "'Space Grotesk',sans-serif",
-  body: "'Inter',-apple-system,sans-serif",
-};
 
 /* Real paths, not hash fragments. A hash never reaches the server, so
    hash routing would have made every server-side pageview record as "/".
@@ -259,6 +252,7 @@ export default function App() {
           )}
 
           {view === "board" && <Board />}
+          {view === "room" && <Room />}
           {view === "collabs" && <Collabs setView={setView} />}
           {view === "playbook" && <Playbook openCard={openCard} setOpenCard={setOpenCard} />}
           {view === "toolbox" && <Toolbox />}
