@@ -93,6 +93,16 @@ export default function App() {
     return () => { dead = true; };
   }, []);
 
+  /* ── Fill in missing pictures ─────────────────────────────────
+     Eight of the thirty feeds carry no images at all, and several more only
+     sometimes — the ARTICLE has an og:image, the syndicated copy just never
+     mentions it. /api/preview reads it server-side and caches it, so this
+     costs one fetch per article ever rather than one per visitor.
+
+     Deliberately after the feed has rendered: a slow publisher must never
+     hold up the wall. Newest first, because that is what anyone is looking
+     at, and capped per session so a long scroll cannot turn into hundreds of
+     requests. */
   /* Keyboard */
   useEffect(() => {
     const onKey = (e) => {
@@ -130,6 +140,83 @@ export default function App() {
       ? [...out].sort((a, b) => (b.date || 0) - (a.date || 0))
       : [...out].sort((a, b) => scoreItem(b) - scoreItem(a) || (b.date || 0) - (a.date || 0));
   }, [items, tag, q, collabOnly, sort]);
+
+  /* url -> attempts. A URL that came back explicitly EMPTY is retired for
+     good; one that timed out is allowed a second go, because the first call on
+     a cold cache is exactly when a slow publisher is most likely to run out of
+     time — and marking those as asked-and-done is why rows stayed grey even
+     though the answer was available a moment later. */
+  const asked = useRef(new Map());
+  const enriched = useRef(0);
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    if (loading) return;
+    const SESSION_CAP = 420;
+    const MAX_TRIES = 2;
+    if (enriched.current >= SESSION_CAP) return;
+
+    /* Enrich what is ON SCREEN, not what is newest overall. Sorting the whole
+       corpus by date and taking the first N did almost nothing: Linear's 238
+       changelog entries are months old, so they sat below the cut no matter
+       how high the cap went. Working from the filtered, sorted view means
+       filtering to "tooling" enriches Linear, searching enriches the results,
+       and nobody pays for pictures they will never scroll to. */
+    const pageOf = (link) => { try { const u = new URL(link); u.hash = ""; return u.toString(); } catch { return link; } };
+
+    const wanted = [];
+    for (const it of visible.slice(0, 90)) {
+      if (it.image || !it.link) continue;
+      const page = pageOf(it.link);
+      if ((asked.current.get(page) || 0) >= MAX_TRIES || wanted.includes(page)) continue;
+      wanted.push(page);
+    }
+    if (!wanted.length) return;
+
+    const pending = wanted.slice(0, Math.min(42, SESSION_CAP - enriched.current));
+    pending.forEach((u) => asked.current.set(u, (asked.current.get(u) || 0) + 1));
+    enriched.current += pending.length;
+
+    let dead = false;
+    (async () => {
+      let missing = 0;
+      for (let i = 0; i < pending.length; i += 14) {
+        if (dead) return;
+        const chunk = pending.slice(i, i + 14);
+        try {
+          const r = await fetch("/api/preview", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ urls: chunk }),
+          });
+          if (!r.ok) continue;
+          const d = await r.json();
+          if (dead) return;
+          const previews = d.previews || {};
+
+          // Present-but-null means "asked, nothing there" — never ask again.
+          chunk.forEach((u) => {
+            if (u in previews && previews[u] === null) asked.current.set(u, 99);
+            else if (!(u in previews)) missing++;         // never answered — worth one retry
+          });
+
+          const found = new Map(Object.entries(previews).filter(([, v]) => v));
+          if (found.size) {
+            setItems((prev) => prev.map((it) => {
+              if (it.image || !it.link) return it;
+              const img = found.get(pageOf(it.link));
+              return img ? { ...it, image: img } : it;
+            }));
+          }
+        } catch {
+          missing += chunk.length;
+        }
+      }
+      // Give the ones that never answered a second pass once the cache is warm.
+      if (!dead && missing) setTimeout(() => !dead && setRetry((n) => n + 1), 4000);
+    })();
+    return () => { dead = true; };
+  }, [loading, visible, retry]);
 
   const trends = useMemo(() => trendingTerms(items), [items]);
   const savedLinks = useMemo(() => new Set(saved.map((s) => s.link)), [saved]);

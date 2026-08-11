@@ -405,7 +405,7 @@ export const MO = [
   },
   {
     k: "Third parties stay at arm's length",
-    v: "Feed images are fetched through this origin rather than loaded from a dozen publisher CDNs, so reading the feed doesn't announce you to all of them. If that proxy is down the image loads directly — working beats pure.",
+    v: "Feed images are fetched through this origin rather than loaded from a dozen publisher CDNs, so reading the feed doesn't announce you to all of them. Where a feed carries no picture, this server — not your browser — reads the article's own preview image once and caches it for everybody. Either way the publisher sees us, never you.",
   },
   {
     k: "Nobody paid to be here",
