@@ -40,6 +40,11 @@ export default function Room() {
   const [driver, setDriver] = useState(null);
   const [youDrive, setYouDrive] = useState(false);
 
+  const [out, setOut] = useState(null);       // { lines, ms, truncated } | { stopped: true }
+  const [running, setRunning] = useState(false);
+  const frame = useRef(null);
+  const watchdog = useRef(null);
+
   const cursor = useRef(0);
   const scroller = useRef(null);
   const padDirty = useRef(false);
@@ -147,6 +152,46 @@ export default function Room() {
   const changeLang = async (l) => {
     setLang(l);
     if (youDrive) await post({ act: "patch", text: pad, rev, lang: l }).then((d) => d && setRev(d.rev));
+  };
+
+  /* The code runs in an iframe loaded WITHOUT allow-same-origin, so it sits in
+     an opaque origin and cannot touch this page, its storage, or the network —
+     see public/run.html and the CSP for /run.html in public/_headers.
+
+     It cannot be stopped from the inside: a synchronous infinite loop blocks
+     that frame's only thread, and nothing running in it can interrupt itself.
+     So the parent keeps a watchdog and throws the whole iframe away, which is
+     the one thing that reliably works. */
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!frame.current || e.source !== frame.current.contentWindow) return;   // ignore anything else on the page
+      if (e.data?.type === "late") {
+        // Async output arriving after the run returned.
+        setOut((o) => (o && o.lines ? { ...o, lines: [...o.lines, e.data.line] } : o));
+        return;
+      }
+      if (e.data?.type !== "result") return;
+      clearTimeout(watchdog.current);
+      setRunning(false);
+      setOut({ lines: e.data.lines || [], ms: e.data.ms, truncated: e.data.truncated });
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+  const run = () => {
+    if (!frame.current) return;
+    setOut(null);
+    setRunning(true);
+    frame.current.contentWindow.postMessage({ type: "run", code: pad }, "*");
+    clearTimeout(watchdog.current);
+    watchdog.current = setTimeout(() => {
+      // Reloading the src discards the wedged frame and gives us a fresh one.
+      if (frame.current) frame.current.src = frame.current.src;
+      setRunning(false);
+      setOut({ stopped: true });
+    }, 5000);
+    track("room_run", { room });
   };
 
   const enterRoom = (e) => {
@@ -264,6 +309,17 @@ export default function Room() {
               {LANGS.map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
 
+            <button onClick={run} disabled={running || lang !== "javascript"}
+              title={lang === "javascript" ? "Run this in a sandbox" : "Only JavaScript runs here"}
+              style={{
+                background: "none", border: `1px solid ${lang === "javascript" ? S.line : "transparent"}`,
+                borderRadius: 6, padding: "3px 10px", cursor: lang === "javascript" ? "pointer" : "default",
+                fontFamily: S.mono, fontSize: 10.5,
+                color: lang === "javascript" ? (running ? S.faint : C.mint) : S.faint,
+              }}>
+              {running ? "running…" : "▶ run"}
+            </button>
+
             <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
               {youDrive ? (
                 <>
@@ -303,6 +359,42 @@ export default function Room() {
           </div>
         </div>
       </div>
+
+      {out && (
+        <div style={{ border: `1px solid ${S.line}`, borderRadius: 10, background: S.panel, marginTop: 16, overflow: "hidden" }}>
+          <div style={{ padding: "9px 14px", borderBottom: `1px solid ${S.line}`, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontFamily: S.mono, fontSize: 10.5, color: S.faint, letterSpacing: ".08em", textTransform: "uppercase" }}>Output</span>
+            {out.ms !== undefined && <span style={{ fontFamily: S.mono, fontSize: 10, color: S.faint }}>{out.ms}ms</span>}
+            <button onClick={() => setOut(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", fontFamily: S.mono, fontSize: 10, color: S.link }}>
+              clear
+            </button>
+          </div>
+          <div style={{ padding: "12px 14px", fontFamily: S.mono, fontSize: 12, lineHeight: 1.7, maxHeight: 260, overflowY: "auto" }}>
+            {out.stopped ? (
+              <div style={{ color: C.amber }}>
+                Stopped after 5 seconds and the sandbox was discarded — usually a loop that never ends.
+                Nothing outside that frame was affected.
+              </div>
+            ) : out.lines.length === 0 ? (
+              <div style={{ color: S.faint }}>Ran cleanly, nothing logged. Use console.log(…), or return a value to see it.</div>
+            ) : (
+              out.lines.map((l, i) => (
+                <div key={i} style={{
+                  color: l.kind === "error" ? C.rose : l.kind === "warn" ? C.amber : l.kind === "value" ? S.link : S.text,
+                  whiteSpace: "pre-wrap", wordBreak: "break-word",
+                }}>
+                  {l.kind === "value" ? "⟵ " : ""}{l.text}
+                </div>
+              ))
+            )}
+            {out.truncated && <div style={{ color: S.faint, marginTop: 6 }}>…output truncated.</div>}
+          </div>
+        </div>
+      )}
+
+      {/* No allow-same-origin: this is what keeps the code in its own origin. */}
+      <iframe ref={frame} src="/run.html" sandbox="allow-scripts" title="code sandbox"
+        style={{ width: 0, height: 0, border: "none", position: "absolute", left: -9999 }} />
 
       <p style={{ fontSize: 12, color: S.faint, lineHeight: 1.6, marginTop: 14, maxWidth: 680 }}>
         Updates arrive about every two seconds — this runs on functions that cannot hold an open

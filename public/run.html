@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>runner</title></head>
+<body>
+<!--
+  SANDBOX FOR PAD CODE.
+
+  This page exists to be loaded in an iframe with sandbox="allow-scripts" and
+  deliberately WITHOUT allow-same-origin, which puts it in an opaque origin:
+  the code inside cannot read crewup.dev's DOM, cookies, localStorage, or make
+  same-origin requests. It also cannot navigate the parent.
+
+  Its own Content-Security-Policy is set in public/_headers, not here, and is
+  the tighter half of the guarantee:
+
+      default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'
+
+  'unsafe-inline' and 'unsafe-eval' are what let this page evaluate what it is
+  sent — which is the entire job — and default-src 'none' means the code it
+  runs has no network at all. No fetch, no image beacon, no websocket. So a
+  paste from a stranger can waste this frame's CPU and nothing else.
+
+  It CANNOT be interrupted from in here: a synchronous infinite loop blocks
+  this frame's only thread. The parent handles that by discarding the whole
+  iframe after a timeout, which is why the runner is disposable by design.
+-->
+<script>
+(function () {
+  "use strict";
+
+  var out = [];
+  var MAX_LINES = 400;
+
+  function show(v, depth) {
+    depth = depth || 0;
+    if (v === null) return "null";
+    if (v === undefined) return "undefined";
+    var t = typeof v;
+    if (t === "string") return depth ? JSON.stringify(v) : v;
+    if (t === "number" || t === "boolean" || t === "bigint") return String(v);
+    if (t === "function") return "ƒ " + (v.name || "anonymous") + "()";
+    if (t === "symbol") return v.toString();
+    if (v instanceof Error) return v.name + ": " + v.message;
+    if (depth > 3) return "…";
+    try {
+      if (Array.isArray(v)) return "[" + v.slice(0, 60).map(function (x) { return show(x, depth + 1); }).join(", ") + (v.length > 60 ? ", …" : "") + "]";
+      var keys = Object.keys(v).slice(0, 40);
+      return "{" + keys.map(function (k) { return k + ": " + show(v[k], depth + 1); }).join(", ") + (Object.keys(v).length > 40 ? ", …" : "") + "}";
+    } catch (e) {
+      return String(v);
+    }
+  }
+
+  // `live` is true once the synchronous part has finished and its result has
+  // been posted. Anything logged after that — a promise resolving, a timer —
+  // is forwarded as it happens instead of being silently dropped, which is
+  // what a setTimeout or a rejected fetch would otherwise be.
+  var live = false;
+
+  function push(kind, args) {
+    if (out.length >= MAX_LINES) return;
+    var line = { kind: kind, text: Array.prototype.map.call(args, function (a) { return show(a); }).join(" ") };
+    out.push(line);
+    if (live) parent.postMessage({ type: "late", line: line }, "*");
+  }
+
+  // The pad's console is this array, not the browser's.
+  console.log = function () { push("log", arguments); };
+  console.info = function () { push("log", arguments); };
+  console.warn = function () { push("warn", arguments); };
+  console.error = function () { push("error", arguments); };
+  console.debug = function () { push("log", arguments); };
+
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "run") return;
+    out = [];
+    live = false;
+    var started = Date.now();
+    var value;
+    try {
+      // Indirect construction, so the code cannot see this scope's variables.
+      value = new Function('"use strict";\n' + e.data.code)();
+      if (value !== undefined) push("value", [value]);
+    } catch (err) {
+      push("error", [err && err.stack ? String(err.stack).split("\n")[0] : String(err)]);
+    }
+    parent.postMessage({
+      type: "result",
+      lines: out,
+      ms: Date.now() - started,
+      truncated: out.length >= MAX_LINES
+    }, "*");
+    live = true;
+  });
+
+  window.addEventListener("unhandledrejection", function (e) {
+    push("error", ["Unhandled rejection: " + show(e.reason)]);
+  });
+  window.addEventListener("error", function (e) { push("error", [e.message]); });
+
+  parent.postMessage({ type: "ready" }, "*");
+})();
+</script>
+</body>
+</html>
