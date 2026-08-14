@@ -261,6 +261,54 @@ export default function Widgets() {
     trackEvent("widgets:filter", next);
   }, []);
 
+  /* Most of this space's sources ship no image tags at all — Chrome
+     Developers, web.dev, Product Hunt, 9to5Mac and every dev.to tag feed
+     return zero. The articles all have an og:image; the feeds just never
+     mention it. /api/preview reads it server-side and caches it, so this is
+     the same fix the main feed got, pointed at the same gap here.
+
+     Bounded and on-screen only: the three buckets each show a page at a
+     time, so there is no reason to fetch pictures for anything below. */
+  const askedPix = useRef(new Set());
+  useEffect(() => {
+    const pageOf = (l) => { try { const u = new URL(l); u.hash = ""; return u.toString(); } catch { return l; } };
+    const want = [];
+    for (const it of [...wire.slice(0, 24), ...gallery.slice(0, 18), ...bench.slice(0, 12)]) {
+      if (it.image || !it.link) continue;
+      const page = pageOf(it.link);
+      if (askedPix.current.has(page) || want.includes(page)) continue;
+      want.push(page);
+    }
+    if (!want.length) return;
+    const batch = want.slice(0, 28);
+    batch.forEach((u) => askedPix.current.add(u));
+
+    let dead = false;
+    (async () => {
+      for (let i = 0; i < batch.length; i += 14) {
+        if (dead) return;
+        try {
+          const r = await fetch("/api/preview", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ urls: batch.slice(i, i + 14) }),
+          });
+          if (!r.ok) continue;
+          const d = await r.json();
+          if (dead) return;
+          const found = new Map(Object.entries(d.previews || {}).filter(([, v]) => v));
+          if (!found.size) continue;
+          const fill = (list) => list.map((it) =>
+            it.image || !it.link ? it : (found.get(pageOf(it.link)) ? { ...it, image: found.get(pageOf(it.link)) } : it));
+          setWire((p) => fill(p));
+          setGallery((p) => fill(p));
+          setBench((p) => fill(p));
+        } catch { /* the tint fallback is already correct */ }
+      }
+    })();
+    return () => { dead = true; };
+  }, [wire, gallery, bench]);
+
   const pics = (gallery.length ? gallery : wire).filter((i) => i.image).slice(0, 18);
   const liveCount = Object.values(status).filter((s) => s.state === "ok" || s.state === "thin").length;
 

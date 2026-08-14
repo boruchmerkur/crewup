@@ -4,10 +4,9 @@ export const SOURCES = [
   // Open source & maintainership
   { id: "github",     name: "GitHub Blog",           url: "https://github.blog/feed/",                             tag: "open source", color: C.violet },
   { id: "gitlab",     name: "GitLab",                url: "https://about.gitlab.com/atom.xml",                     tag: "open source", color: C.violet },
-  { id: "googleoss",  name: "Google Open Source",    url: "https://opensource.googleblog.com/feeds/posts/default", tag: "open source", color: C.violet },
+  { id: "googleoss",  name: "Google Open Source",    url: "https://feeds.feedburner.com/GoogleOpenSourceBlog",     tag: "open source", color: C.violet },
   { id: "osi",        name: "Open Source Initiative",url: "https://opensource.org/feed",                           tag: "open source", color: C.violet },
-  { id: "lfoss",      name: "Linux Foundation",      url: "https://www.linuxfoundation.org/feed",                  tag: "open source", color: C.violet },
-  { id: "apache",     name: "Apache Foundation",     url: "https://news.apache.org/foundation/atom.xml",           tag: "open source", color: C.violet },
+  { id: "lfoss",      name: "Linux Foundation",      url: "https://www.linuxfoundation.org/blog/rss.xml",          tag: "open source", color: C.violet },
   { id: "fossforce",  name: "FOSS Force",            url: "https://fossforce.com/feed/",                           tag: "open source", color: C.violet },
 
   // Engineering practice
@@ -24,7 +23,8 @@ export const SOURCES = [
   { id: "hey",        name: "DHH / HEY World",       url: "https://world.hey.com/dhh/feed.atom",                   tag: "team culture", color: C.amber },
   { id: "atlassian",  name: "Atlassian Work Life",   url: "https://www.atlassian.com/blog/feed",                   tag: "team culture", color: C.amber },
   { id: "doist",      name: "Doist / Ambition",      url: "https://blog.doist.com/rss/",                           tag: "team culture", color: C.amber },
-  { id: "gitlabrem",  name: "GitLab Remote",         url: "https://about.gitlab.com/blog/categories/remote/atom.xml", tag: "team culture", color: C.amber },
+  { id: "charity",    name: "Charity Majors",        url: "https://charity.wtf/feed/",                             tag: "team culture", color: C.amber },
+  { id: "rands",      name: "Rands in Repose",       url: "https://randsinrepose.com/feed/",                       tag: "team culture", color: C.amber },
   { id: "leaddev",    name: "LeadDev",               url: "https://leaddev.com/rss.xml",                           tag: "team culture", color: C.amber },
   { id: "irrational", name: "Irrational Exuberance", url: "https://lethain.com/feeds/",                            tag: "team culture", color: C.amber },
 

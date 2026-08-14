@@ -80,8 +80,21 @@ export default function App() {
     };
   }, []);
 
-  /* Pull every feed in parallel; render each as it lands. */
+  /* Pull every feed in parallel; render each as it lands.
+
+     Only for the views that actually read them. This used to run on mount
+     whatever you had opened, so arriving at /widgets — which has seventeen
+     feeds of its own — fetched thirty more that nothing on the page would
+     ever display, and the same on /playbook, /glossary and /room. Once
+     started it never restarts: leaving the feed and coming back re-reads
+     state, it does not re-fetch. */
+  const NEEDS_FEED = ["home", "feed", "sources", "saved"];
+  const started = useRef(false);
+
   useEffect(() => {
+    if (started.current || !NEEDS_FEED.includes(view)) return;
+    started.current = true;
+
     let dead = false;
     setStatus(Object.fromEntries(SOURCES.map((s) => [s.id, "loading"])));
     let done = 0;
@@ -93,7 +106,7 @@ export default function App() {
       if (++done === SOURCES.length) setLoading(false);
     });
     return () => { dead = true; };
-  }, []);
+  }, [view]);
 
   /* ── Fill in missing pictures ─────────────────────────────────
      Eight of the thirty feeds carry no images at all, and several more only
