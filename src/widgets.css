@@ -1,0 +1,184 @@
+/* Widgets space — layout only.
+
+   Colours are crewup's, declared once here from the same values as
+   src/theme.js. The drop shipped reading --ink/--bg/--muted/--border/--accent
+   with fallbacks, which would have rendered a different-looking page inside
+   this one. Anything visual belongs to the site, not to the space. */
+
+.wg {
+  --wg-bg:     #101010;
+  --wg-soft:   #0A0A0B;
+  --wg-rule:   #24242A;
+  --wg-ink:    #E8E6E3;
+  --wg-muted:  #939AA8;
+  --wg-faint:  #7E8494;
+  --wg-accent: #A78BFA;
+  --wg-mono:   'JetBrains Mono', ui-monospace, monospace;
+  --wg-disp:   'Space Grotesk', sans-serif;
+}
+
+/* Widgets space — layout only.
+   Every colour and face falls back to crewup's own tokens first, so this
+   inherits the site's design rather than importing a second one. The
+   fallbacks after the comma are only used if the variable is unset.
+   Rename the var() names to match crewup's actual tokens and this
+   disappears into the site. */
+
+.wg {
+  --wg-ink:      var(--wg-ink);
+  --wg-bg:       var(--wg-bg);
+  --wg-soft:     var(--wg-muted);
+  --wg-rule:     var(--wg-rule));
+  --wg-accent:   var(--wg-accent);
+  --wg-mono:     var(--wg-mono);
+  color: var(--wg-ink);
+}
+
+.wg-head { max-width: 62ch; }
+.wg-eyebrow {
+  font-family: var(--wg-mono);
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--wg-soft); margin: 0 0 10px;
+}
+.wg-head h1 { margin: 0 0 12px; line-height: 1.02; letter-spacing: -.02em; }
+.wg-lede { margin: 0; color: var(--wg-soft); font-size: 1.05rem; line-height: 1.6; }
+
+/* ---------- controls ---------- */
+.wg-controls {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin: 28px 0 8px; padding-bottom: 14px; border-bottom: 1px solid var(--wg-rule);
+}
+.wg-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 auto; }
+.wg-chip {
+  background: transparent; border: 1px solid var(--wg-rule); color: inherit;
+  padding: 6px 13px; font-family: var(--wg-mono); font-size: 11px; letter-spacing: .05em;
+  cursor: pointer; border-radius: 2px; transition: background .16s, border-color .16s, color .16s;
+}
+.wg-chip:hover { border-color: var(--wg-ink); }
+.wg-chip[aria-pressed="true"] { background: var(--wg-ink); border-color: var(--wg-ink); color: var(--wg-bg); }
+.wg-chip i { font-style: normal; opacity: .55; margin-left: 6px; }
+.wg-search {
+  border: 1px solid var(--wg-rule); background: transparent; color: inherit;
+  padding: 8px 12px; font-family: var(--wg-mono); font-size: 12px;
+  border-radius: 2px; min-width: 190px; flex: 0 1 240px;
+}
+.wg-live {
+  font-family: var(--wg-mono); font-size: 11px; color: var(--wg-soft);
+  margin: 0 0 8px;
+}
+
+/* ---------- sections ---------- */
+.wg-section { margin-top: 46px; }
+.wg-section > h2 {
+  margin: 0 0 6px; letter-spacing: -.015em;
+  padding-bottom: 10px; border-bottom: 1px solid var(--wg-ink);
+}
+.wg-blurb { margin: 0 0 20px; color: var(--wg-soft); font-size: .92rem; }
+.wg-empty {
+  padding: 48px 20px; text-align: center; border: 1px dashed var(--wg-rule);
+  font-family: var(--wg-mono); font-size: 12px; color: var(--wg-soft);
+}
+
+/* ---------- wire grid ---------- */
+.wg-grid {
+  display: grid; gap: 1px; background: var(--wg-rule);
+  border: 1px solid var(--wg-rule);
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+}
+.wg-card { background: var(--wg-bg); transition: background .2s; }
+.wg-card > a { display: flex; flex-direction: column; height: 100%; color: inherit; text-decoration: none; }
+.wg-shot {
+  width: 100%; aspect-ratio: 5 / 4; object-fit: cover; display: block;
+  border-bottom: 1px solid var(--wg-rule);
+  filter: saturate(.9); transition: filter .4s, transform 1s cubic-bezier(.16,1,.3,1);
+}
+.wg-card:hover .wg-shot { filter: none; transform: scale(1.04); }
+.wg-card > a { overflow: hidden; }
+.wg-body { padding: 14px 15px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.wg-meta { font-family: var(--wg-mono); font-size: 10px; color: var(--wg-soft); }
+.wg-meta b { font-weight: 400; color: var(--wg-accent); margin-right: 8px; }
+.wg-body h3 { margin: 0; font-size: 1.02rem; line-height: 1.28; letter-spacing: -.012em; }
+.wg-card:hover .wg-body h3 { color: var(--wg-accent); }
+.wg-body p {
+  margin: 0; font-size: .82rem; line-height: 1.5; color: var(--wg-soft);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.wg-foot {
+  margin-top: auto; padding-top: 10px; display: flex; justify-content: space-between; gap: 8px;
+  font-family: var(--wg-mono); font-size: 10px; color: var(--wg-soft);
+}
+.wg-cat { color: var(--wg-ink); border-bottom: 1px solid var(--wg-accent); }
+.wg-more {
+  display: block; width: 100%; margin-top: 20px; padding: 15px;
+  background: transparent; border: 1px solid var(--wg-ink); color: inherit;
+  font-family: var(--wg-mono); font-size: 12px; letter-spacing: .1em; cursor: pointer;
+  transition: background .18s, color .18s;
+}
+.wg-more:hover { background: var(--wg-ink); color: var(--wg-bg); }
+
+/* ---------- setups ---------- */
+.wg-sheet {
+  display: grid; gap: 1px; background: var(--wg-rule); border: 1px solid var(--wg-rule);
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 640px) { .wg-sheet { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1100px) { .wg-sheet { grid-template-columns: repeat(6, 1fr); } }
+.wg-frame { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--wg-bg); display: block; }
+.wg-frame-img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(1) contrast(1.04);
+  transition: filter .45s, transform .9s cubic-bezier(.16,1,.3,1);
+}
+.wg-frame:hover .wg-frame-img { filter: none; transform: scale(1.06); }
+.wg-num {
+  position: absolute; top: 6px; left: 7px; z-index: 2;
+  font-family: var(--wg-mono); font-size: 9px; color: #fff; mix-blend-mode: difference;
+}
+.wg-cap {
+  position: absolute; inset: auto 0 0 0; padding: 26px 9px 9px; z-index: 2;
+  background: linear-gradient(transparent, rgba(10,12,14,.9)); color: #fff;
+  font-size: 11px; line-height: 1.3; opacity: 0; transition: opacity .28s;
+}
+.wg-frame:hover .wg-cap, .wg-frame:focus-visible .wg-cap { opacity: 1; }
+
+/* ---------- bench ---------- */
+.wg-bench { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; }
+@media (min-width: 820px) { .wg-bench { grid-template-columns: 1fr 1fr; column-gap: 38px; } }
+.wg-bench li { border-bottom: 1px solid var(--wg-rule); }
+.wg-bench a {
+  display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: baseline;
+  padding: 12px 0; color: inherit; text-decoration: none;
+  transition: padding-left .3s cubic-bezier(.16,1,.3,1);
+}
+.wg-bench a:hover { padding-left: 10px; color: var(--wg-accent); }
+.wg-n, .wg-when { font-family: var(--wg-mono); font-size: 10px; color: var(--wg-soft); }
+.wg-bench-title { font-size: .92rem; line-height: 1.35; }
+
+/* ---------- sources ---------- */
+.wg-sources {
+  display: grid; gap: 1px; background: var(--wg-rule); border: 1px solid var(--wg-rule);
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.wg-source { background: var(--wg-bg); padding: 14px 15px; display: flex; flex-direction: column; gap: 5px; }
+.wg-source-name { font-weight: 600; font-size: .88rem; }
+.wg-state { font-family: var(--wg-mono); font-size: 10px; letter-spacing: .06em; }
+.wg-state[data-s="ok"]   { color: var(--wg-accent); }
+.wg-state[data-s="thin"] { color: #b07a00; }
+.wg-state[data-s="wait"] { color: var(--wg-soft); }
+.wg-state[data-s="bad"]  { color: #d33; }
+.wg-url { font-family: var(--wg-mono); font-size: 10px; color: var(--wg-soft); overflow-wrap: anywhere; }
+
+/* ---------- skeleton ---------- */
+.wg-skel .wg-shot, .wg-skel .wg-lines {
+  background: linear-gradient(90deg, var(--wg-rule) 25%, transparent 50%, var(--wg-rule) 75%);
+  background-size: 400% 100%; animation: wg-sk 1.4s ease infinite;
+}
+.wg-skel .wg-lines { height: 74px; margin: 14px 15px; }
+@keyframes wg-sk { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wg *, .wg *::before, .wg *::after {
+    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
