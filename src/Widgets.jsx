@@ -19,6 +19,11 @@ import { proxied } from "./data.js";
 const FEED_API = "/api/feed?url=";
 const PAGE = 24;
 
+/* Articles are keyed by page, ignoring any #fragment. */
+function keyOf(link) {
+  try { const u = new URL(link); u.hash = ""; return u.toString(); } catch { return link; }
+}
+
 /* ---------- parsing ----------
    getElementsByTagName throughout, never querySelector.
    querySelector("content:encoded") throws SyntaxError — the colon is
@@ -180,6 +185,16 @@ const trackEvent = (name, detail) => track(name, detail);
    ============================================================ */
 
 export default function Widgets() {
+  /* Found pictures live here, keyed by article URL, and are merged in at
+     RENDER — never written back into wire/bench/gallery.
+
+     Writing them into the lists looked right and silently lost most of them:
+     sources land progressively and each re-sets its whole bucket as it
+     arrives, so an image merged a moment earlier was overwritten by the next
+     source to finish. Half the wire rendered as flat tint with a good image
+     already fetched and sitting in memory. */
+  const [pix, setPix] = useState({});
+
   const [wire, setWire] = useState([]);
   const [bench, setBench] = useState([]);
   const [gallery, setGallery] = useState([]);
@@ -273,7 +288,7 @@ export default function Widgets() {
   useEffect(() => {
     const pageOf = (l) => { try { const u = new URL(l); u.hash = ""; return u.toString(); } catch { return l; } };
     const want = [];
-    for (const it of [...wire.slice(0, 24), ...gallery.slice(0, 18), ...bench.slice(0, 12)]) {
+    for (const it of [...wire.slice(0, 24), ...gallery.slice(0, 18), ...benchP.slice(0, 12)]) {
       if (it.image || !it.link) continue;
       const page = pageOf(it.link);
       if (askedPix.current.has(page) || want.includes(page)) continue;
@@ -296,20 +311,25 @@ export default function Widgets() {
           if (!r.ok) continue;
           const d = await r.json();
           if (dead) return;
-          const found = new Map(Object.entries(d.previews || {}).filter(([, v]) => v));
-          if (!found.size) continue;
-          const fill = (list) => list.map((it) =>
-            it.image || !it.link ? it : (found.get(pageOf(it.link)) ? { ...it, image: found.get(pageOf(it.link)) } : it));
-          setWire((p) => fill(p));
-          setGallery((p) => fill(p));
-          setBench((p) => fill(p));
+          const found = Object.fromEntries(Object.entries(d.previews || {}).filter(([, v]) => v));
+          if (Object.keys(found).length) setPix((prev) => ({ ...prev, ...found }));
         } catch { /* the tint fallback is already correct */ }
       }
     })();
     return () => { dead = true; };
   }, [wire, gallery, bench]);
 
-  const pics = (gallery.length ? gallery : wire).filter((i) => i.image).slice(0, 18);
+  const dress = (it) => {
+    if (it.image || !it.link) return it;
+    const img = pix[keyOf(it.link)];
+    return img ? { ...it, image: img } : it;
+  };
+  const wireP = wire.map(dress);
+  const benchP = bench.map(dress);
+  const galleryP = gallery.map(dress);
+  const visibleP = visible.map(dress);          // the grid renders the filtered list
+
+  const pics = (galleryP.length ? galleryP : wireP).filter((i) => i.image).slice(0, 18);
   const liveCount = Object.values(status).filter((s) => s.state === "ok" || s.state === "thin").length;
 
   return (
@@ -356,7 +376,7 @@ export default function Widgets() {
         <h2>{WIDGET_COPY.wireTitle}</h2>
         <p className="wg-blurb">{WIDGET_COPY.wireBlurb}</p>
 
-        {!wire.length ? (
+        {!wireP.length ? (
           <div className="wg-grid">
             {Array.from({ length: 6 }, (_, i) => (
               <div className="wg-card wg-skel" key={i} aria-hidden="true">
@@ -369,7 +389,7 @@ export default function Widgets() {
         ) : (
           <>
             <div className="wg-grid">
-              {visible.slice(0, shown).map((it, i) => (
+              {visibleP.slice(0, shown).map((it, i) => (
                 <article className="wg-card" key={it.link + i}>
                   <a href={it.link} target="_blank" rel="noopener noreferrer">
                     <Thumb item={it} className="wg-shot" />
@@ -388,7 +408,7 @@ export default function Widgets() {
                 </article>
               ))}
             </div>
-            {visible.length > shown && (
+            {visibleP.length > shown && (
               <button className="wg-more" type="button" onClick={() => setShown((s) => s + PAGE)}>
                 Show more
               </button>
@@ -419,12 +439,12 @@ export default function Widgets() {
         </section>
       )}
 
-      {!!bench.length && (
+      {!!benchP.length && (
         <section className="wg-section">
           <h2>{WIDGET_COPY.benchTitle}</h2>
           <p className="wg-blurb">{WIDGET_COPY.benchBlurb}</p>
           <ol className="wg-bench">
-            {bench.slice(0, 16).map((it, i) => (
+            {benchP.slice(0, 16).map((it, i) => (
               <li key={it.link + i}>
                 <a href={it.link} target="_blank" rel="noopener noreferrer">
                   <span className="wg-n">{String(i + 1).padStart(2, "0")}</span>

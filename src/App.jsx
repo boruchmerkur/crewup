@@ -16,19 +16,35 @@ const trackCursor = (e) => {
   e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
 };
 
+/* Nav has a shape now, rather than being eleven things in a row.
+
+   read      — streams that change on their own
+   together  — places other people are
+   reference — written once, read many times
+   more      — utilities. Sources is a directory of what the feed reads and
+               Glossary is a lookup; neither is somewhere you GO. Saved is
+               empty for everyone who has never starred anything, which is
+               everyone on their first visit. */
 const VIEWS = [
-  { id: "home",     label: "Home",     hint: "What this is" },
-  { id: "feed",     label: "Feed",     hint: "Live stream from 30 sources" },
-  { id: "board",    label: "Board",    hint: "Who needs help, and who needs work" },
-  { id: "room",     label: "Room",     hint: "Talk, and one shared pad" },
-  { id: "collabs",  label: "Collabs",  hint: "Work split by craft, and who brought what" },
-  { id: "playbook", label: "Playbook", hint: "How teams actually work together" },
-  { id: "toolbox",  label: "Toolbox",  hint: "Tools worth the switching cost" },
-  { id: "widgets",  label: "Widgets",  hint: "Small things that live on a screen" },
-  { id: "glossary", label: "Glossary", hint: "The vocabulary, defined" },
-  { id: "sources",  label: "Sources",  hint: "What we read, and why" },
-  { id: "saved",    label: "Saved",    hint: "Your reading list" },
+  { id: "home",     label: "Home",     group: "home",      hint: "What this is" },
+
+  { id: "feed",     label: "Feed",     group: "read",      hint: "Live stream from 30 sources" },
+  { id: "widgets",  label: "Widgets",  group: "read",      hint: "Small things that live on a screen" },
+
+  { id: "board",    label: "Board",    group: "together",  hint: "Who needs help, and who needs work" },
+  { id: "room",     label: "Room",     group: "together",  hint: "Talk, and one shared pad" },
+  { id: "collabs",  label: "Collabs",  group: "together",  hint: "Work split by craft, and who brought what" },
+
+  { id: "playbook", label: "Playbook", group: "reference", hint: "How teams actually work together" },
+  { id: "toolbox",  label: "Toolbox",  group: "reference", hint: "Tools worth the switching cost" },
+
+  { id: "glossary", label: "Glossary", group: "more",      hint: "The vocabulary, defined" },
+  { id: "sources",  label: "Sources",  group: "more",      hint: "What we read, and why" },
+  { id: "saved",    label: "Saved",    group: "more",      hint: "Things you starred — kept in this browser" },
 ];
+
+const PRIMARY = VIEWS.filter((v) => v.group !== "home" && v.group !== "more");
+const TUCKED = VIEWS.filter((v) => v.group === "more");
 
 
 /* Real paths, not hash fragments. A hash never reaches the server, so
@@ -59,6 +75,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [openCard, setOpenCard] = useState(null);
   const [cursor, setCursor] = useState(-1);
+  const [moreOpen, setMoreOpen] = useState(false);
   const searchRef = useRef(null);
   const { saved, toggle, clear } = useSaved();
 
@@ -127,7 +144,7 @@ export default function App() {
       }
       if (e.key === "/") { e.preventDefault(); searchRef.current?.focus(); return; }
       const n = parseInt(e.key, 10);
-      if (n >= 1 && n <= VIEWS.length) { setView(VIEWS[n - 1].id); return; }
+      if (n >= 1 && n <= PRIMARY.length) { setView(PRIMARY[n - 1].id); return; }
       if (view !== "feed" && view !== "saved") return;
       if (e.key === "j") { e.preventDefault(); setCursor((c) => c + 1); }
       if (e.key === "k") { e.preventDefault(); setCursor((c) => Math.max(-1, c - 1)); }
@@ -135,6 +152,16 @@ export default function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [view]);
+
+  /* A menu that will not close is worse than no menu. */
+  useEffect(() => {
+    if (!moreOpen) return;
+    const shut = (e) => { if (!e.target.closest?.("nav")) setMoreOpen(false); };
+    const esc = (e) => e.key === "Escape" && setMoreOpen(false);
+    document.addEventListener("click", shut);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("click", shut); document.removeEventListener("keydown", esc); };
+  }, [moreOpen]);
 
   useEffect(() => {
     if (cursor < 0) return;
@@ -260,21 +287,71 @@ export default function App() {
           <span className="glow-text" style={{ fontFamily: S.disp, fontWeight: 600, fontSize: 17, letterSpacing: "-.02em" }}>crewup</span>
         </button>
 
-        <nav style={{ display: "flex", gap: 2, marginLeft: 14, flexWrap: "wrap" }}>
-          {VIEWS.map((v, i) => (
-            <button key={v.id} onClick={() => setView(v.id)} title={v.hint} style={{
-              background: view === v.id ? S.hov : "transparent",
-              color: view === v.id ? S.text : S.dim,
-              border: "none", borderRadius: 6, padding: "6px 11px", fontSize: 13,
-              cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
-            }}>
-              {v.label}
-              <span style={{ fontFamily: S.mono, fontSize: 9, color: S.faint }}>{i + 1}</span>
-              {v.id === "saved" && saved.length > 0 && (
+        <nav style={{ display: "flex", gap: 2, marginLeft: 14, flexWrap: "wrap", alignItems: "center" }}>
+          {PRIMARY.map((v, i) => (
+            <span key={v.id} style={{ display: "flex", alignItems: "center" }}>
+              {/* A hairline where the group changes: the clusters are visible
+                  without needing a label for each one. */}
+              {i > 0 && PRIMARY[i - 1].group !== v.group && (
+                <span aria-hidden="true" style={{ width: 1, height: 15, background: S.line, margin: "0 8px" }} />
+              )}
+              <button onClick={() => setView(v.id)} title={v.hint} style={{
+                background: view === v.id ? S.hov : "transparent",
+                color: view === v.id ? S.text : S.dim,
+                border: "none", borderRadius: 6, padding: "6px 11px", fontSize: 13,
+                cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+              }}>
+                {v.label}
+                <span style={{ fontFamily: S.mono, fontSize: 9, color: S.faint }}>{i + 1}</span>
+              </button>
+            </span>
+          ))}
+
+          <span style={{ width: 1, height: 15, background: S.line, margin: "0 8px" }} aria-hidden="true" />
+
+          <span style={{ position: "relative" }}>
+            <button onClick={() => setMoreOpen((o) => !o)}
+              aria-expanded={moreOpen} aria-haspopup="true"
+              title="Glossary, sources and your reading list"
+              style={{
+                background: TUCKED.some((v) => v.id === view) ? S.hov : "transparent",
+                color: TUCKED.some((v) => v.id === view) ? S.text : S.dim,
+                border: "none", borderRadius: 6, padding: "6px 11px", fontSize: 13,
+                cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+              }}>
+              More
+              <span style={{ fontSize: 9, color: S.faint }}>{moreOpen ? "▲" : "▼"}</span>
+              {saved.length > 0 && !moreOpen && (
                 <span style={{ fontFamily: S.mono, fontSize: 10, color: C.mint }}>{saved.length}</span>
               )}
             </button>
-          ))}
+
+            {moreOpen && (
+              <div style={{
+                position: "absolute", top: "calc(100% + 7px)", left: 0, minWidth: 190, zIndex: 40,
+                background: S.panel, border: `1px solid ${S.line}`, borderRadius: 9,
+                padding: 5, boxShadow: "0 14px 34px -12px rgba(0,0,0,.75)",
+              }}>
+                {TUCKED.map((v) => (
+                  <button key={v.id} onClick={() => { setView(v.id); setMoreOpen(false); }}
+                    style={{
+                      width: "100%", textAlign: "left", background: view === v.id ? S.hov : "transparent",
+                      color: view === v.id ? S.text : S.dim, border: "none", borderRadius: 6,
+                      padding: "8px 10px", fontSize: 13, cursor: "pointer",
+                      display: "flex", alignItems: "baseline", gap: 8,
+                    }}>
+                    {v.label}
+                    {v.id === "saved" && saved.length > 0 && (
+                      <span style={{ fontFamily: S.mono, fontSize: 10, color: C.mint }}>{saved.length}</span>
+                    )}
+                    <span style={{ marginLeft: "auto", fontFamily: S.mono, fontSize: 9.5, color: S.faint }}>
+                      {v.id === "saved" ? "yours" : v.id === "sources" ? "directory" : "lookup"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </span>
         </nav>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 9, fontFamily: S.mono, fontSize: 11, color: S.dim }}>

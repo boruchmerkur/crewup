@@ -62,10 +62,19 @@ export default async (request) => {
 
     /* Reddit rate-limits hard and intermittently — three of five subreddits
        came back 429 on one pass and a different three on the next. It carries
-       the entire visual load of the Widgets space, so one retry after a short
-       pause is worth it; a 429 is a "not right now", not a refusal. */
-    if (upstream.status === 429) {
-      await new Promise((r) => setTimeout(r, 600));
+       the entire visual load of the Widgets space, so retrying is worth it; a
+       429 is a "not right now", not a refusal.
+
+       One retry at a flat 600ms was not enough: measured against the live site,
+       four of the five subreddits still ended at 429 and the space lost its
+       whole gallery. Backing off properly — and honouring Retry-After when
+       Reddit sends one — is what actually clears it. */
+    for (let attempt = 0; upstream.status === 429 && attempt < 3; attempt++) {
+      const asked = Number(upstream.headers.get("retry-after")) * 1000;
+      const wait = Number.isFinite(asked) && asked > 0
+        ? Math.min(asked, 4000)
+        : [700, 1600, 2800][attempt];
+      await new Promise((r) => setTimeout(r, wait));
       upstream = await fetch(parsed.toString(), {
         headers: {
           "user-agent": "crewup-feed-reader/1.0 (+https://crewup.dev)",
@@ -75,8 +84,22 @@ export default async (request) => {
       });
     }
 
+    /* Pass 429 through as 429 rather than flattening it to 502. The client
+       shows "not answering" for a 502, which is a lie about a source that is
+       merely busy, and it needs to tell the two apart to know whether asking
+       again is worth anything. no-store matters just as much: a rate limit
+       cached at the edge turns a three-second problem into a fifteen-minute
+       outage. */
     if (!upstream.ok) {
-      return new Response(`Upstream ${upstream.status}`, { status: 502, headers: CORS });
+      const status = upstream.status === 429 ? 429 : 502;
+      return new Response(`Upstream ${upstream.status}`, {
+        status,
+        headers: {
+          ...CORS,
+          "cache-control": "no-store",
+          "netlify-cdn-cache-control": "no-store",
+        },
+      });
     }
 
     /* Feeds that rate-limit are held far longer at the edge: the cheapest way

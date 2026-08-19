@@ -15,12 +15,17 @@ export const WIDGET_COPY = {
   lede:
     "Home screen, desktop, browser, page. The people making widgets, the " +
     "techniques behind them, and what they look like once they are installed.",
+
+  /* Blurbs describe the CONTENT, never the interface. "Newest first" told a
+     reader what the sort order was, which they can see; "widgets in the wild"
+     and "build-your-own —" were doing the same throat-clearing in fewer
+     words. If a line would still make sense printed on paper, it stays. */
   wireTitle: "The wire",
-  wireBlurb: "Releases, techniques and new components, newest first.",
+  wireBlurb: "Releases, techniques, and components worth stealing.",
   benchTitle: "The bench",
-  benchBlurb: "Build-your-own — walkthroughs, code, and the awkward details.",
+  benchBlurb: "Walkthroughs, code, and the awkward details nobody writes down.",
   galleryTitle: "Setups",
-  galleryBlurb: "Widgets in the wild. Home screens, desktops, dashboards, rices."
+  galleryBlurb: "Home screens, desktops, dashboards, rices."
 };
 
 /**
