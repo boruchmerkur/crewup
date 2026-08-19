@@ -38,9 +38,15 @@ function textOf(node, names) {
 }
 
 function stripTags(html) {
-  const d = document.createElement("div");
-  d.innerHTML = String(html || "");
-  return (d.textContent || "").replace(/\s+/g, " ").trim();
+  /* DOMParser, not innerHTML. Assigning feed HTML to a detached div still
+     makes Chrome fetch what is inside the subtree — every <img>, and every
+     <audio preload>. 9to5Mac ships podcast audio in its descriptions, so
+     simply parsing the feed was reaching out to 9to5mac.com on load. CSP
+     blocked it, but the requests were being attempted, which is precisely
+     the third-party contact /api/img exists to prevent. A DOMParser
+     document is inert. */
+  const d = new DOMParser().parseFromString(String(html || ""), "text/html");
+  return (d.body?.textContent || "").replace(/\s+/g, " ").trim();
 }
 
 function imageOf(node, body) {
@@ -81,7 +87,15 @@ function parseFeed(xml) {
     const body = textOf(n, ["content:encoded", "content", "description", "summary"]);
     let image = imageOf(n, body);
     if (image.startsWith("//")) image = "https:" + image;
-    image = image.replace(/&amp;/g, "&"); // reddit preview urls arrive entity-encoded
+    /* Feed image URLs arrive entity-encoded, and not only as &amp;: WordPress
+       escapes query separators as the NUMERIC entity &#038;, so 9to5Mac's
+       images came through as ...jpg?quality=82&#038;strip=all and 404'd.
+       Smashing serves some over plain http, which is mixed content here. */
+    image = image
+      .replace(/&amp;/g, "&")
+      .replace(/&#0*38;/g, "&")
+      .replace(/&#x0*26;/gi, "&");
+    if (image.startsWith("http://")) image = "https://" + image.slice(7);
     return {
       title: stripTags(textOf(n, ["title"])) || "Untitled",
       link: linkOf(n),
@@ -150,7 +164,16 @@ function tint(seed) {
    not to make, and the reason /api/img exists at all. It now asks the source
    for its own favicon, through our proxy, which is what FeedThumb does. */
 function Thumb({ item, className }) {
-  const [stage, setStage] = useState(item.image ? 0 : 3);
+  /* Stage is DERIVED from the prop; only the failure count is state.
+
+     Seeding stage from the prop once at mount meant every card from a feed
+     with no enclosure — dev.to, web.dev, Chrome Developers, Product Hunt,
+     9to5Mac, most of the list — mounted at stage 3 and stayed there. When
+     /api/preview later found the og:image and set it on the item, nothing
+     happened: the component had already decided it had no picture. */
+  const [failed, setFailed] = useState(0);
+  useEffect(() => { setFailed(0); }, [item.image]);
+  const stage = (item.image ? 0 : 3) + failed;
   const host = useMemo(() => {
     try { return new URL(item.link).hostname; } catch { return ""; }
   }, [item.link]);
@@ -170,7 +193,7 @@ function Thumb({ item, className }) {
       src={src}
       alt=""
       loading="lazy"
-      onError={() => setStage((s) => s + 1)}
+      onError={() => setFailed((f) => f + 1)}
     />
   );
 }
@@ -210,10 +233,22 @@ export default function Widgets() {
     let cancelled = false;
     const byDate = (a, b) => new Date(b.date) - new Date(a.date);
 
-    async function pull(source) {
+    async function pull(source, attempt = 0) {
       try {
         const res = await fetch(FEED_API + encodeURIComponent(source.url));
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        /* 429 means busy, not broken. The edge function passes it through as
+           429 rather than flattening it to 502 precisely so this can tell the
+           difference — Reddit rate-limits a rotating subset on every load and
+           carries the whole gallery, so writing a source off after one refusal
+           loses the pictures for no reason. Two more asks, then give up. */
+        if (res.status === 429 && attempt < 2) {
+          setStatus((st) => ({ ...st, [source.name]: { state: "busy" } }));
+          await new Promise((r) => setTimeout(r, attempt === 0 ? 4000 : 9000));
+          if (cancelled) return;
+          return pull(source, attempt + 1);
+        }
+        if (!res.ok) throw new Error(res.status === 429 ? "rate-limited" : `HTTP ${res.status}`);
         const items = parseFeed(await res.text());
         if (cancelled) return;
 
@@ -470,6 +505,7 @@ export default function Widgets() {
                 <span className="wg-source-name">{s.name}</span>
                 <span className="wg-state" data-s={st.state}>
                   {st.state === "wait" ? "fetching"
+                    : st.state === "busy" ? "rate-limited — waiting to ask again"
                     : st.state === "bad" ? `not answering — ${st.why}`
                     : `${st.count} items · ${st.pct}% pics`}
                 </span>
