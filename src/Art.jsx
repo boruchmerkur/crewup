@@ -227,20 +227,36 @@ export function Avatar({ name, size = 28, index }) {
 
 const PEOPLE = ["mira.k", "dan.s", "leah.r", "omar.j", "ava.c", "jin.w"];
 
-export function PresenceStrip({ label = "reading right now" }) {
-  const [n, setN] = useState(3);
+export function PresenceStrip({ label = "in the room right now" }) {
+  /* This used to invent its own number: 3 + Math.floor(Math.random() * 4),
+     re-rolled every six seconds, over avatars of people who do not exist.
+     Fabricated social proof on a site whose house rules promise that claims
+     are checkable — and the one number a visitor might have believed.
+
+     It now shows the room's real presence count, which the room already
+     tracks server-side, and renders NOTHING when there is nobody there.
+     An empty room is allowed to look empty. */
+  const [n, setN] = useState(null);
 
   useEffect(() => {
-    const t = setInterval(() => setN(3 + Math.floor(Math.random() * 4)), 6000);
-    return () => clearInterval(t);
+    let dead = false;
+    const read = () => fetch("/api/room?room=lobby")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!dead && d) setN(d.here || 0); })
+      .catch(() => {});
+    read();
+    const t = setInterval(read, 30000);
+    return () => { dead = true; clearInterval(t); };
   }, []);
+
+  if (!n) return null;
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
       <div style={{ display: "flex" }}>
-        {PEOPLE.slice(0, n).map((p, i) => (
-          <span key={p} style={{ marginLeft: i ? -9 : 0, position: "relative", zIndex: PEOPLE.length - i, transition: "margin .3s" }}>
-            <Avatar name={p} index={i} size={28} />
+        {Array.from({ length: Math.min(n, 5) }).map((_, i) => (
+          <span key={i} style={{ marginLeft: i ? -9 : 0, position: "relative", zIndex: 5 - i }}>
+            <Avatar name={`p${i}`} index={i} size={28} />
           </span>
         ))}
       </div>

@@ -131,13 +131,6 @@ export default function Board() {
 
       {state === "ok" && shown.length === 0 && (
         <div style={{ padding: "44px 0", maxWidth: 460 }}>
-          <div style={{ display: "flex", marginBottom: 18, opacity: .45 }}>
-            {["a.k", "d.s", "l.r", "o.j", "n.f"].map((n, i) => (
-              <span key={n} style={{ marginLeft: i ? -10 : 0, position: "relative", zIndex: 5 - i }}>
-                <Avatar name={n} index={i} size={32} />
-              </span>
-            ))}
-          </div>
           <div style={{ fontFamily: S.disp, fontSize: 18, marginBottom: 8 }}>
             {q ? "Nothing matches" : tab === "project" ? "No open projects yet" : "Nobody listed yet"}
           </div>
