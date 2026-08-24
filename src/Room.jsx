@@ -259,7 +259,7 @@ export default function Room() {
 
       <div className="shell" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
         {/* ── chat ── */}
-        <div style={{ border: `1px solid ${S.line}`, borderRadius: 10, background: S.panel, display: "flex", flexDirection: "column", height: 560 }}>
+        <div className="room-panel" style={{ border: `1px solid ${S.line}`, borderRadius: 10, background: S.panel, display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "11px 15px", borderBottom: `1px solid ${S.line}`, fontFamily: S.mono, fontSize: 10.5, color: S.faint, letterSpacing: ".08em", textTransform: "uppercase" }}>
             Chat
           </div>
@@ -307,7 +307,7 @@ export default function Room() {
         </div>
 
         {/* ── pad ── */}
-        <div style={{ border: `1px solid ${S.line}`, borderRadius: 10, background: S.panel, display: "flex", flexDirection: "column", height: 560 }}>
+        <div className="room-panel" style={{ border: `1px solid ${S.line}`, borderRadius: 10, background: S.panel, display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "9px 12px", borderBottom: `1px solid ${S.line}`, display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
             <span style={{ fontFamily: S.mono, fontSize: 10.5, color: S.faint, letterSpacing: ".08em", textTransform: "uppercase" }}>Pad</span>
             <select value={lang} onChange={(e) => changeLang(e.target.value)} disabled={!youDrive}

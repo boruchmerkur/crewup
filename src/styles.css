@@ -197,3 +197,11 @@ a:hover .arw,.cta:hover .arw{transform:translateX(4px)}
 @media(max-width:820px){
   .feat{grid-template-columns:1fr!important}
 }
+
+/* Room panels. Fixed at 560 on a desktop; on a phone two stacked 560s mean
+   scrolling past the entire chat before the pad is even visible, so they take
+   a share of the screen instead. */
+.room-panel { height: 560px; }
+@media (max-width: 700px) {
+  .room-panel { height: 58vh; min-height: 320px; max-height: 460px; }
+}
