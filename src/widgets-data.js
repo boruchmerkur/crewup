@@ -36,6 +36,11 @@ export const WIDGET_COPY = {
  * their own bucket stops the news feeds filling the visual section with
  * publisher logos.
  */
+/* No 9to5Mac. It publishes 100 items of general Apple consumer news a day —
+   seven times the next-largest source — and almost none of it is about
+   widgets. Newest-first with that in the list meant the whole wire read as an
+   Apple news site. Removed rather than capped: a source whose relevant share
+   is a rounding error does not belong here even at one item. */
 export const WIDGET_SOURCES = [
   // wire
   { name: "Codrops",            url: "https://tympanus.net/codrops/feed/" },
@@ -45,7 +50,6 @@ export const WIDGET_SOURCES = [
   { name: "web.dev",            url: "https://web.dev/feed.xml" },
   { name: "MDN Blog",           url: "https://developer.mozilla.org/en-US/blog/rss.xml" },
   { name: "Product Hunt",       url: "https://www.producthunt.com/feed" },
-  { name: "9to5Mac",            url: "https://9to5mac.com/feed/" },
   { name: "dev.to · components",url: "https://dev.to/feed/tag/webcomponents" },
   { name: "dev.to · css",       url: "https://dev.to/feed/tag/css" },
 

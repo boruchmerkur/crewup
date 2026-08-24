@@ -296,13 +296,33 @@ export default function Widgets() {
     return c;
   }, [wire]);
 
+  /* No source may take more than its share of the wire. Even after dropping
+     the worst offender, Product Hunt and the MDN blog carry 50 and 71 items
+     against Codrops' 10 — sorted purely by date, the high-volume publishers
+     own the top of the page and the specialists never appear. */
+  const PER_SOURCE = 6;
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return wire.filter((it) => {
+    const matched = wire.filter((it) => {
       if (cat !== "All" && it.cat !== cat) return false;
       if (q && !(it.title + " " + it.text).toLowerCase().includes(q)) return false;
       return true;
     });
+
+    // Round-robin by source: take each publisher's newest, then their second,
+    // and so on. Order stays newest-first within a source and no one floods.
+    const bySource = new Map();
+    for (const it of matched) {
+      if (!bySource.has(it.src)) bySource.set(it.src, []);
+      bySource.get(it.src).push(it);
+    }
+    const out = [];
+    for (let round = 0; round < PER_SOURCE; round++) {
+      for (const list of bySource.values()) if (list[round]) out.push(list[round]);
+    }
+    // A search should still find everything; the cap is for browsing.
+    return q ? matched : out;
   }, [wire, cat, query]);
 
   const pickCat = useCallback((next) => {
