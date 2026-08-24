@@ -268,8 +268,14 @@ export default function Room() {
             onScroll={(e) => { const el = e.currentTarget; stuck.current = el.scrollHeight - el.scrollTop - el.clientHeight < 60; }}
             style={{ flex: 1, overflowY: "auto", padding: "14px 15px", display: "flex", flexDirection: "column", gap: 12 }}>
             {msgs.length === 0 && (
-              <div style={{ fontFamily: S.mono, fontSize: 12, color: S.faint, margin: "auto", textAlign: "center", lineHeight: 1.7 }}>
-                Nothing yet.<br />Say something and leave the tab open.
+              <div style={{ margin: "auto", textAlign: "center", maxWidth: 300, lineHeight: 1.65 }}>
+                <div style={{ fontFamily: S.disp, fontSize: 15, color: S.text, marginBottom: 7 }}>
+                  Nobody here yet
+                </div>
+                <p style={{ fontSize: 12.5, color: S.dim }}>
+                  Anyone who opens <span style={{ fontFamily: S.mono, color: S.link }}>/{room}</span> lands
+                  in this room. Send someone the name and you are both in the same place.
+                </p>
               </div>
             )}
             {msgs.map((m) => (

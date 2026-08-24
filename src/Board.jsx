@@ -129,14 +129,38 @@ export default function Board() {
         </div>
       )}
 
+      {/* An empty board should read as NEW, not broken — and it should say
+          what to write, because "be the first" is an invitation with no
+          instructions in it. */}
       {state === "ok" && shown.length === 0 && (
-        <div style={{ padding: "44px 0", maxWidth: 460 }}>
-          <div style={{ fontFamily: S.disp, fontSize: 18, marginBottom: 8 }}>
-            {q ? "Nothing matches" : tab === "project" ? "No open projects yet" : "Nobody listed yet"}
+        <div style={{ padding: "40px 0", maxWidth: 520 }}>
+          <div style={{ fontFamily: S.disp, fontSize: 19, marginBottom: 9 }}>
+            {q ? "Nothing matches"
+              : tab === "project" ? "Nobody has asked for help yet"
+              : "Nobody has put their hand up yet"}
           </div>
-          <p style={{ color: S.dim, fontSize: 14, lineHeight: 1.6 }}>
-            {q ? "Try a broader term." : "Be the first — posts with a GitHub handle render considerably better."}
-          </p>
+
+          {q ? (
+            <p style={{ color: S.dim, fontSize: 14, lineHeight: 1.6 }}>Try a broader term.</p>
+          ) : (
+            <>
+              <p style={{ color: S.dim, fontSize: 14, lineHeight: 1.65, marginBottom: 16 }}>
+                {tab === "project"
+                  ? "This is where you say what you are stuck on and what kind of help it needs — a review, a second pair of eyes, someone who knows the thing you don't."
+                  : "This is where you say what you are good at and how much time you actually have. Specific beats broad: “two hours a week on accessibility” gets answered, “open to opportunities” does not."}
+              </p>
+              <p style={{ color: S.faint, fontSize: 12.5, lineHeight: 1.6, marginBottom: 18, fontFamily: S.mono }}>
+                No account needed. Add a GitHub handle and the post carries your repos with it.
+              </p>
+              <button onClick={() => setComposing(true)} className="lift"
+                style={{
+                  background: C.mint, color: "#101010", border: "none", borderRadius: 999,
+                  padding: "10px 20px", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                }}>
+                {tab === "project" ? "Post what you need" : "Say what you can take on"}
+              </button>
+            </>
+          )}
         </div>
       )}
 
