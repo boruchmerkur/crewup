@@ -179,6 +179,89 @@ export function ArtSlot({ src, ratio = "4 / 3", radius = 10, fallbackFrom = C.vi
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   ROTATING ART — the hero slot, cycling through whatever exists.
+
+   Every candidate is probed before it is shown, so the list can name files
+   that have not been generated yet: missing ones are dropped silently and
+   the slot behaves exactly as it did with a single image. With one file it
+   never cycles. With none it falls back to the gradient.
+
+   Auto-advance stops under prefers-reduced-motion — a picture changing on
+   its own behind text is exactly the kind of motion that rule exists for.
+   ═══════════════════════════════════════════════════════════════ */
+
+export function RotatingArt({ sources = [], ratio = "16 / 10", radius = 10, every = 9000, children }) {
+  const [live, setLive] = useState([]);
+  const [i, setI] = useState(0);
+
+  useEffect(() => {
+    let dead = false;
+    const found = [];
+    Promise.all(
+      sources.map((src) => new Promise((res) => {
+        const img = new Image();
+        img.onload = () => { found.push(src); res(); };
+        img.onerror = () => res();
+        img.src = src;
+      }))
+    ).then(() => {
+      if (dead) return;
+      // Keep the authored order rather than whichever decoded first.
+      setLive(sources.filter((s) => found.includes(s)));
+    });
+    return () => { dead = true; };
+  }, [sources.join("|")]);
+
+  useEffect(() => {
+    if (live.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setI((n) => (n + 1) % live.length), every);
+    return () => clearInterval(t);
+  }, [live, every]);
+
+  return (
+    <div style={{
+      position: "relative", aspectRatio: ratio, borderRadius: radius, overflow: "hidden",
+      border: "1px solid #24242A",
+      background: `radial-gradient(120% 100% at 20% 10%, ${C.violet}22, transparent 60%),
+                   radial-gradient(100% 100% at 85% 90%, ${C.mint}1C, transparent 55%),
+                   #0A0A0B`,
+    }}>
+      {/* Both layers stay mounted; only opacity moves, so the cross-fade
+          never shows the ground through a gap. */}
+      {live.map((src, n) => (
+        <div key={src} aria-hidden="true" style={{
+          position: "absolute", inset: 0,
+          background: `#0A0A0B url(${src}) center/cover`,
+          opacity: n === i ? 1 : 0,
+          transition: "opacity 1.1s ease-in-out",
+        }} />
+      ))}
+
+      {live.length === 0 && children}
+
+      {live.length > 0 && (
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #101010CC, transparent 55%)" }} />
+      )}
+
+      {/* Which of them you are looking at, only when there is a choice. */}
+      {live.length > 1 && (
+        <div style={{ position: "absolute", bottom: 10, right: 12, display: "flex", gap: 5 }}>
+          {live.map((src, n) => (
+            <button key={src} onClick={() => setI(n)} aria-label={`Show image ${n + 1}`}
+              style={{
+                width: 5, height: 5, padding: 0, borderRadius: "50%", cursor: "pointer",
+                border: "none", background: n === i ? "#E8E6E3" : "#E8E6E355",
+                transition: "background .3s",
+              }} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    AVATAR — deterministic gradient from initials, upgraded to a
    generated portrait if public/art/avatar-N.jpg exists.
    ═══════════════════════════════════════════════════════════════ */

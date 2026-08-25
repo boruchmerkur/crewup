@@ -66,6 +66,17 @@ export const COLLAB_TERMS = [
    failure. Privacy when we can, images always.
 
    Set to false to skip the proxy entirely and always load direct. */
+/* The hero slot cycles through these. Names that do not exist yet are simply
+   skipped — drop a file in and it joins the rotation on the next deploy, with
+   no code change. Prompts for the unbuilt ones are in ART-PROMPTS-8.2.md. */
+export const HERO_ART = [
+  "/art/hero.jpg",
+  "/art/hero-2.jpg",
+  "/art/hero-3.jpg",
+  "/art/hero-4.jpg",
+  "/art/hero-5.jpg",
+];
+
 export const USE_IMG_PROXY = true;
 
 export const proxied = (url) => `/api/img?url=${encodeURIComponent(url)}`;

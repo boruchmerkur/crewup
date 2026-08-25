@@ -371,3 +371,84 @@ alive, and the only one with a real empty-state problem.
 Still true: a dark technical interface is often *worse* with photography, and
 the CSS atmosphere in the build may already be doing the job. Three renders will
 tell you more than three hundred words of art direction.
+
+---
+
+## Hero rotation — `hero-2` … `hero-5`
+
+Added 2026-08-19. The hero slot on the landing page now cycles through
+`HERO_ART` in `src/data.js`, cross-fading every 9 seconds and pausing entirely
+under `prefers-reduced-motion`. Names that do not exist are skipped, so these
+can be generated one at a time and each joins the rotation on the next deploy.
+
+**Two things about this slot that the other prompts do not have to worry about.**
+
+It sits **top right, beside the hero story**, and the site now lays a
+`linear-gradient(to top, #101010CC, transparent 55%)` over the bottom half of
+it. So: keep the subject in the **upper two thirds**, and do not put anything
+you need read in the bottom third — it goes under the scrim.
+
+The ground also changed. The palette moved off blue-black: it is now
+**`#101010` neutral**, lit by violet `#7C3AED`, mint `#34D399` and a warm amber
+`#F59E0B` at 9%. Prompts referencing `#0D1117` above are stale for this slot.
+
+All four are `--ar 16:10` to match the frame exactly. Reuse the one `--sref`
+code from the anchor prompt across all four or they will not read as a set —
+that is the whole point of a rotation.
+
+### hero-2 — the handoff
+
+```
+documentary photograph, one person leaving a desk while another sits down at it,
+mid-swap, a single monitor between them, dark neutral #101010 room, faint violet
+#7C3AED edge light from the left, warm amber spill from a lamp far right, both
+figures in the upper two thirds of frame, empty desk surface across the bottom,
+35mm, unposed, fine film grain --ar 16:10 --raw --s 90 --sref XXXXXXXX
+--no text, watermark, logos, ui, screens facing camera, stock photo smiles,
+teal and orange grade, lens flare, dramatic rim light, glossy retouching
+```
+
+### hero-3 — the review
+
+```
+documentary photograph, three people around one laptop in a dark room, one
+pointing at the screen, the other two watching rather than talking, neutral
+#101010 walls, cool screen light on faces, a single warm amber source behind
+them, subjects high in frame, foreground desk falling into shadow, 35mm,
+candid, quiet, film grain --ar 16:10 --raw --s 85 --sref XXXXXXXX
+--no text, watermark, logos, ui, screens facing camera, stock photo smiles,
+teal and orange grade, lens flare, dramatic rim light, glossy retouching
+```
+
+### hero-4 — the whiteboard, after
+
+```
+documentary photograph of a whiteboard covered in boxes and arrows after a long
+session, two coffee cups and a marker on the ledge, nobody in frame, dark
+neutral #101010 room, cold daylight from one side, faint violet reflection on
+the board surface, diagram occupying the upper two thirds, ledge and shadow
+across the bottom, 50mm, still, film grain --ar 16:10 --raw --s 70 --sref XXXXXXXX
+--no text, readable words, watermark, logos, ui, teal and orange grade,
+lens flare, dramatic rim light, glossy retouching
+```
+
+### hero-5 — the empty pair station
+
+```
+documentary photograph, two chairs pulled up to one desk with a single keyboard
+between them, nobody sitting, dark neutral #101010 room lit by one monitor left
+on, violet #7C3AED glow on the chair backs, warm amber lamp far right, chairs and
+monitor in the upper two thirds, bare floor across the bottom, 35mm, quiet,
+end of day, fine film grain --ar 16:10 --raw --s 80 --sref XXXXXXXX
+--no text, watermark, logos, ui, people, stock photo styling, teal and orange
+grade, lens flare, dramatic rim light, glossy retouching
+```
+
+### Order of work
+
+`hero-2` first — with two images the rotation is real and you can judge whether
+9 seconds is right before generating four. If it reads as restless, `every` on
+the `RotatingArt` call in `App.jsx` is the one number to change.
+
+Save as `public/art/hero-2.jpg` … `hero-5.jpg`, roughly 1600×1000, quality 82.
+Nothing else needs editing.

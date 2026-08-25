@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS, MO, THESIS } from "./data.js";
+import { C, SOURCES, TAGS, PLAYBOOK, TOOLS, GLOSSARY, COLLABS, MO, THESIS, HERO_ART } from "./data.js";
 import { fetchFeed, scoreItem, relTime, trendingTerms, exportOPML, useSaved, pickFeatured } from "./lib.js";
 import { track } from "./analytics.js";
 import { S } from "./theme.js";
 import Board from "./Board.jsx";
 import Room from "./Room.jsx";
 import Widgets from "./Widgets.jsx";
-import { Backdrop, ConnectiveField, ArtSlot, Avatar, PresenceStrip, HeaderArt, FeedThumb } from "./Art.jsx";
+import { Backdrop, ConnectiveField, ArtSlot, RotatingArt, Avatar, PresenceStrip, HeaderArt, FeedThumb } from "./Art.jsx";
 
 /* Feeds the pointer position to .cta as --mx/--my so the hover sheen sits
    under the cursor rather than in the middle of the button. */
@@ -595,11 +595,11 @@ function Home({ setView, items, saved, live, loading }) {
         </div>
 
         <div style={{ display: "grid", gap: 14 }}>
-        <ArtSlot src="/art/hero.jpg" ratio="16 / 10">
+        <RotatingArt sources={HERO_ART} ratio="16 / 10">
           <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
             <ConnectiveField height={220} count={30} />
           </div>
-        </ArtSlot>
+        </RotatingArt>
 
         <div style={{ background: "#0A0A0B", border: `1px solid ${S.line}`, borderRadius: 10, overflow: "hidden" }}>
           <div style={{ padding: "10px 16px", borderBottom: `1px solid ${S.line}`, display: "flex", alignItems: "center", gap: 8 }}>
