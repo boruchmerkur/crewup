@@ -71,10 +71,21 @@ export const COLLAB_TERMS = [
    no code change. Prompts for the unbuilt ones are in ART-PROMPTS-8.2.md. */
 export const HERO_ART = [
   "/art/hero.jpg",
+
+  // Purpose-made hero art. Prompts are in ART-PROMPTS-8.2.md; these names do
+  // not exist yet and are skipped until they do.
   "/art/hero-2.jpg",
   "/art/hero-3.jpg",
   "/art/hero-4.jpg",
   "/art/hero-5.jpg",
+
+  // Standing in meanwhile: two renders already in the site's own art, same
+  // documentary look and the same palette. They double as section headers on
+  // Board and Toolbox, so the hero repeats them until the four above land —
+  // which is still better than a hero that never changes. Delete these two
+  // lines once hero-2 and hero-3 exist.
+  "/art/header-board.jpg",
+  "/art/header-toolbox.jpg",
 ];
 
 export const USE_IMG_PROXY = true;
