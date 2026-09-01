@@ -6,6 +6,7 @@ import { S } from "./theme.js";
 import Board from "./Board.jsx";
 import Room from "./Room.jsx";
 import Widgets from "./Widgets.jsx";
+import Showcase from "./Showcase.jsx";
 import { Backdrop, ConnectiveField, ArtSlot, RotatingArt, Avatar, PresenceStrip, HeaderArt, FeedThumb } from "./Art.jsx";
 
 /* Feeds the pointer position to .cta as --mx/--my so the hover sheen sits
@@ -34,6 +35,7 @@ const VIEWS = [
   { id: "board",    label: "Board",    group: "together",  hint: "Who needs help, and who needs work" },
   { id: "room",     label: "Room",     group: "together",  hint: "Talk, and one shared pad" },
   { id: "collabs",  label: "Collabs",  group: "together",  hint: "Work split by craft, and who brought what" },
+  { id: "showcase", label: "Showcase", group: "together",  hint: "Things people built — submit yours" },
 
   { id: "playbook", label: "Playbook", group: "reference", hint: "How teams actually work together" },
   { id: "toolbox",  label: "Toolbox",  group: "reference", hint: "Tools worth the switching cost" },
@@ -433,6 +435,7 @@ export default function App() {
           {view === "board" && <Board />}
           {view === "room" && <Room />}
           {view === "widgets" && <Widgets />}
+          {view === "showcase" && <Showcase />}
           {view === "collabs" && <Collabs setView={setView} />}
           {view === "playbook" && <Playbook openCard={openCard} setOpenCard={setOpenCard} />}
           {view === "toolbox" && <Toolbox />}
