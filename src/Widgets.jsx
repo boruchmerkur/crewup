@@ -354,40 +354,72 @@ export default function Widgets() {
 
      Bounded and on-screen only: the three buckets each show a page at a
      time, so there is no reason to fetch pictures for anything below. */
-  const askedPix = useRef(new Set());
+  /* url -> attempts. A page that answered EMPTY is retired for good; one that
+     never answered gets another go.
+
+     Marking a URL asked before the reply arrives, and never revisiting it, is
+     why the wire stayed grey: the first pass runs while /api/preview's cache
+     is still cold, several lookups time out and return nothing, and those
+     items are then written off permanently even though the very next request
+     for them succeeds. The main feed had this exact bug and this exact fix;
+     this copy never got it. */
+  const askedPix = useRef(new Map());
+  const [pixRetry, setPixRetry] = useState(0);
+
   useEffect(() => {
     const pageOf = (l) => { try { const u = new URL(l); u.hash = ""; return u.toString(); } catch { return l; } };
     const want = [];
-    for (const it of [...wire.slice(0, 24), ...gallery.slice(0, 18), ...benchP.slice(0, 12)]) {
+    /* Enrich what is ON SCREEN. `wire` is the raw newest-first pile; the grid
+       renders `visible`, which is round-robin by source and capped per
+       publisher — a different set entirely. Asking for pictures for the
+       newest 24 of the pile while rendering a spread across nine sources left
+       two thirds of the wire on a flat tint with nothing ever fetched for it.
+       Same mistake, and the same fix, as the main feed.
+
+       (It also read benchP here, which is declared further down the
+       component — it only worked because the effect body runs after render.) */
+    for (const it of [...visible.slice(0, shown + 12), ...gallery.slice(0, 18), ...bench.slice(0, 12)]) {
       if (it.image || !it.link) continue;
       const page = pageOf(it.link);
-      if (askedPix.current.has(page) || want.includes(page)) continue;
+      if ((askedPix.current.get(page) || 0) >= 3 || want.includes(page)) continue;
       want.push(page);
     }
     if (!want.length) return;
     const batch = want.slice(0, 28);
-    batch.forEach((u) => askedPix.current.add(u));
+    batch.forEach((u) => askedPix.current.set(u, (askedPix.current.get(u) || 0) + 1));
 
     let dead = false;
     (async () => {
-      for (let i = 0; i < batch.length; i += 14) {
+      let missing = 0;
+      for (let i = 0; i < batch.length; i += 7) {
         if (dead) return;
         try {
           const r = await fetch("/api/preview", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ urls: batch.slice(i, i + 14) }),
+            body: JSON.stringify({ urls: batch.slice(i, i + 7) }),
           });
-          if (!r.ok) continue;
+          const chunk = batch.slice(i, i + 7);
+          if (!r.ok) { missing += chunk.length; continue; }
           const d = await r.json();
           if (dead) return;
-          const found = Object.fromEntries(Object.entries(d.previews || {}).filter(([, v]) => v));
+          const previews = d.previews || {};
+
+          // Present-but-null is a real answer: never ask again. Absent means
+          // it never answered, which is worth one more try once warm.
+          chunk.forEach((u) => {
+            if (u in previews && previews[u] === null) askedPix.current.set(u, 99);
+            else if (!(u in previews)) missing++;
+          });
+
+          const found = Object.fromEntries(Object.entries(previews).filter(([, v]) => v));
           if (Object.keys(found).length) setPix((prev) => ({ ...prev, ...found }));
-        } catch { /* the tint fallback is already correct */ }
+        } catch { missing += 7; }
       }
+      if (!dead && missing) setTimeout(() => !dead && setPixRetry((n) => n + 1), 4000);
     })();
     return () => { dead = true; };
-  }, [wire, gallery, bench]);
+  }, [visible, shown, gallery, bench, pixRetry]);
 
   const dress = (it) => {
     if (it.image || !it.link) return it;
@@ -437,7 +469,11 @@ export default function Widgets() {
         />
       </div>
 
-      <p className="wg-live" role="status" aria-live="polite">
+      {/* Visually hidden, deliberately not deleted. The count on screen was
+          noise; the announcement is the only thing that tells a screen-reader
+          user that filtering changed the grid, which otherwise happens in
+          silence. */}
+      <p className="wg-live sr-only" role="status" aria-live="polite">
         {visible.length} {visible.length === 1 ? "entry" : "entries"}
         {cat !== "All" ? ` in ${cat}` : ""}
       </p>
