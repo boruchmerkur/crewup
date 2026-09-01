@@ -124,8 +124,9 @@ export default function Showcase() {
       </div>
 
       <p style={{ fontSize: 14.5, color: S.dim, lineHeight: 1.65, maxWidth: 640, marginBottom: 22 }}>
-        Things people built. A link, a name and one line — the picture comes from the project's own
-        page, so there is nothing to upload. New entries are read before they appear.
+        Tools, apps and widgets people have built. To add yours, give a link, a name and a
+        one-line description — the screenshot is taken from your own page, so there is no
+        image to prepare. Submissions are reviewed before they appear.
       </p>
 
       {open && (
@@ -135,13 +136,14 @@ export default function Showcase() {
         }}>
           {done ? (
             <div style={{ fontSize: 14, color: C.mint, lineHeight: 1.6 }}>
-              Sent. It's held until it's been read — you'll see it below, marked, until then.
+              Submitted. It will appear once it has been reviewed. Until then you can see it
+              below, marked as awaiting review.
             </div>
           ) : (
             <>
-              {field("title", "Name", "Whatever you call it")}
+              {field("title", "Name", "What it is called")}
               {field("url", "Link", "example.com/thing")}
-              {field("blurb", "What it does", "One line. What it is for, not how clever it is.", 2)}
+              {field("blurb", "What it does", "One line describing what it does.", 2)}
               {field("maker", "Who made it (optional)", "a name or handle")}
 
               <label style={{ display: "block", marginBottom: 14 }}>
@@ -188,7 +190,7 @@ export default function Showcase() {
         <div style={{ padding: "36px 0", maxWidth: 480 }}>
           <div style={{ fontFamily: S.disp, fontSize: 18, marginBottom: 8 }}>Nothing here yet</div>
           <p style={{ color: S.dim, fontSize: 14, lineHeight: 1.6 }}>
-            Be the first. It takes a link and one line.
+            Add the first one — it takes a link and a one-line description.
           </p>
         </div>
       )}
