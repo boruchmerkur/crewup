@@ -49,6 +49,24 @@ function stripTags(html) {
   return (d.body?.textContent || "").replace(/\s+/g, " ").trim();
 }
 
+/* Decode until it stops changing. One pass is not enough: Reddit's RSS
+   carries preview URLs escaped TWICE — "&amp;amp;crop=smart" — so a single
+   decode leaves "&amp;crop=smart", the signed s= parameter no longer matches
+   what Reddit signed, and every gallery image comes back 403. Decoded twice
+   the same URL returns 200. Capped so a pathological string cannot spin. */
+function decodeEntities(u) {
+  let out = String(u || "");
+  for (let i = 0; i < 4; i++) {
+    const next = out
+      .replace(/&amp;/gi, "&")
+      .replace(/&#0*38;/g, "&")
+      .replace(/&#x0*26;/gi, "&");
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
 function imageOf(node, body) {
   const enc = node.getElementsByTagName("enclosure")[0];
   if (enc && /image/.test(enc.getAttribute("type") || "")) {
@@ -91,10 +109,7 @@ function parseFeed(xml) {
        escapes query separators as the NUMERIC entity &#038;, so 9to5Mac's
        images came through as ...jpg?quality=82&#038;strip=all and 404'd.
        Smashing serves some over plain http, which is mixed content here. */
-    image = image
-      .replace(/&amp;/g, "&")
-      .replace(/&#0*38;/g, "&")
-      .replace(/&#x0*26;/gi, "&");
+    image = decodeEntities(image);
     if (image.startsWith("http://")) image = "https://" + image.slice(7);
     return {
       title: stripTags(textOf(n, ["title"])) || "Untitled",
