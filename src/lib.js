@@ -185,13 +185,19 @@ export function parseFeed(xml, source) {
     .filter((i) => i.title && i.link);
 }
 
+const PER_SOURCE = 60;
+
 export async function fetchFeed(source) {
   for (const proxy of PROXIES) {
     try {
       const r = await fetch(proxy(source.url), { signal: AbortSignal.timeout(11000) });
       if (!r.ok) throw new Error(String(r.status));
       const items = parseFeed(await r.text(), source);
-      if (items.length) return { ok: true, items };
+      /* No source may bring more than its share. Thoughtworks publishes its
+         whole archive — 2,712 entries against Codrops' ten — so without this
+         one publisher was about two thirds of the entire feed and everything
+         else was buried under it regardless of date. Newest first, then cut. */
+      if (items.length) return { ok: true, items: items.slice(0, PER_SOURCE) };
     } catch {
       /* try the next strategy */
     }

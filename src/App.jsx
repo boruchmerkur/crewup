@@ -30,7 +30,7 @@ const trackCursor = (e) => {
 const VIEWS = [
   { id: "home",     label: "Home",     group: "home",      hint: "What this is" },
 
-  { id: "feed",     label: "Feed",     group: "read",      hint: "Live stream from 30 sources" },
+  { id: "feed",     label: "Feed",     group: "read",      hint: "What is being written about coding with models" },
   { id: "widgets",  label: "Widgets",  group: "read",      hint: "Small things that live on a screen" },
 
   { id: "board",    label: "Board",    group: "together",  hint: "Who needs help, and who needs work" },
@@ -38,11 +38,11 @@ const VIEWS = [
   { id: "collabs",  label: "Collabs",  group: "together",  hint: "Work split by craft, and who brought what" },
   { id: "showcase", label: "Showcase", group: "together",  hint: "Things people built — submit yours" },
 
-  { id: "playbook", label: "Playbook", group: "reference", hint: "How teams actually work together" },
-  { id: "toolbox",  label: "Toolbox",  group: "reference", hint: "Tools worth the switching cost" },
+  { id: "playbook", label: "Playbook", group: "reference", hint: "Working with a model, and with each other" },
+  { id: "toolbox",  label: "Toolbox",  group: "reference", hint: "Agents, editors, and the rest" },
   { id: "models",   label: "Models",   group: "reference", hint: "Which AI is best at which job" },
 
-  { id: "glossary", label: "Glossary", group: "more",      hint: "The vocabulary, defined" },
+  { id: "glossary", label: "Glossary", group: "more",      hint: "Review debt, provenance, evals, defined" },
   { id: "sources",  label: "Sources",  group: "more",      hint: "What we read, and why" },
   { id: "saved",    label: "Saved",    group: "more",      hint: "Things you starred — kept in this browser" },
 ];

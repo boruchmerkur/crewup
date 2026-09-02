@@ -13,6 +13,8 @@ const ALLOWED_HOSTS = [
   "github.blog", "about.gitlab.com", "opensource.googleblog.com", "opensource.org",
   "www.linuxfoundation.org", "fossforce.com", "feeds.feedburner.com",
   "randsinrepose.com", "charity.wtf",
+  // vibe coding
+  "simonwillison.net", "www.latent.space", "cursor.com", "sourcegraph.com",
   "martinfowler.com", "blog.pragmaticengineer.com", "stackoverflow.blog",
   "feed.infoq.com", "changelog.com", "www.thoughtworks.com", "www.honeycomb.io",
   "tidyfirst.substack.com", "world.hey.com", "www.atlassian.com", "blog.doist.com",

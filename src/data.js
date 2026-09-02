@@ -1,6 +1,16 @@
-export const C = { violet: "#7C3AED", mint: "#34D399", amber: "#F59E0B", sky: "#38BDF8", rose: "#FB7185" };
+export const C = { violet: "#7C3AED", mint: "#34D399", amber: "#F59E0B", sky: "#38BDF8", rose: "#FB7185", lime: "#A3E635" };
 
 export const SOURCES = [
+  /* Vibe coding — the reason most of this list exists now. Kept first
+     because it is what the site is mainly about. */
+  { id: "willison",   name: "Simon Willison",        url: "https://simonwillison.net/atom/everything/",            tag: "vibe coding", color: C.lime },
+  { id: "latent",     name: "Latent Space",          url: "https://www.latent.space/feed",                         tag: "vibe coding", color: C.lime },
+  { id: "cursor",     name: "Cursor Changelog",      url: "https://cursor.com/changelog/rss.xml",                  tag: "vibe coding", color: C.lime },
+  { id: "ghchange",   name: "GitHub Changelog",      url: "https://github.blog/changelog/feed/",                   tag: "vibe coding", color: C.lime },
+  { id: "srcgraph",   name: "Sourcegraph",           url: "https://sourcegraph.com/blog/rss.xml",                  tag: "vibe coding", color: C.lime },
+  { id: "hnvibe",     name: "HN · Vibe coding",     url: "https://hnrss.org/newest?q=vibe+coding&points=20",       tag: "vibe coding", color: C.lime },
+  { id: "hnaireview", name: "HN · AI code review",  url: "https://hnrss.org/newest?q=AI+code+review&points=20",    tag: "vibe coding", color: C.lime },
+
   // Open source & maintainership
   { id: "github",     name: "GitHub Blog",           url: "https://github.blog/feed/",                             tag: "open source", color: C.violet },
   { id: "gitlab",     name: "GitLab",                url: "https://about.gitlab.com/atom.xml",                     tag: "open source", color: C.violet },
@@ -42,9 +52,16 @@ export const SOURCES = [
   { id: "replit",     name: "Replit Blog",           url: "https://blog.replit.com/feed.xml",                      tag: "tooling", color: C.rose },
 ];
 
-export const TAGS = ["all", "open source", "practice", "team culture", "community", "tooling"];
+export const TAGS = ["all", "vibe coding", "practice", "open source", "team culture", "community", "tooling"];
 
 export const COLLAB_TERMS = [
+  /* Vibe-coding vocabulary first: the "collab only" filter scored for standups
+     and retros while the field argued about agents, so the articles most
+     relevant to this site were the ones it ranked lowest. */
+  "vibe cod","agentic","coding agent","ai-generated","ai generated","llm","copilot",
+  "cursor","claude code","prompt","context window","hallucinat","review debt","provenance",
+  "spec-driven","eval","autocomplete","pair with","model wrote","generated code",
+
   "collaborat","pair program","mob program","ensemble","code review","open source","contributor",
   "team","remote work","async","pull request","rfc","community","maintainer","onboarding",
   "documentation","handoff","distributed team","standup","retro","knowledge sharing","mentor",
@@ -107,6 +124,90 @@ export const PROXIES = [
    ═══════════════════════════════════════════════════════════════ */
 
 export const PLAYBOOK = [
+  {
+    id: "reading-generated", name: "Reviewing Code You Did Not Write", family: "With a model", heat: "high",
+    one: "The first human to read it is the person who has to own it.",
+    when: "Every change a model produced, which is now most of them.",
+    how: [
+      "Read the diff before you run it. Running it first tells you it works, not what it does.",
+      "Ask what it does NOT handle. Generated code is confident about the happy path and silent about the rest.",
+      "Check the imports. A plausible library that does not exist is the cheapest error to catch and the most embarrassing to ship.",
+      "Look for the thing you did not ask for: an extra dependency, a widened permission, a swallowed error.",
+      "If you cannot explain a block to someone else, you have not reviewed it. Understand it or delete it.",
+    ],
+    pitfalls: [
+      "Approving because the tests pass. The model may have written the tests.",
+      "Reviewing 900 lines because it arrived in one go. The 400-line limit was about the reader, and the reader has not changed.",
+      "Treating the model as the explanation in a postmortem. Nobody accepts it, and rightly.",
+    ],
+    metric: "Share of merged changes a human can still explain a week later.",
+  },
+  {
+    id: "pairing-model", name: "Pairing With a Model", family: "With a model", heat: "high",
+    one: "You are the navigator now. It is a fast driver with no memory of yesterday.",
+    when: "Unfamiliar APIs, mechanical refactors, first drafts, anything where typing was the slow part.",
+    how: [
+      "Say the goal and the constraints before the task. It cannot infer the ones living in your head.",
+      "Give it the shape you want back, or you will get its favourite shape.",
+      "Work in small turns. A long autonomous run is a large diff nobody watched being written.",
+      "When it is wrong twice about the same thing, change the framing rather than correcting again. Repeating yourself louder is not a prompt.",
+      "Keep the tests visible. Watching it fail is most of the value.",
+    ],
+    pitfalls: [
+      "Letting it drive somewhere you could not have driven yourself. That is not pairing, it is outsourcing with extra steps.",
+      "Accepting an architecture from something with no stake in maintaining it.",
+      "Three hours in, nobody knows why the code is shaped this way, including you.",
+    ],
+    metric: "How often a session of work gets reverted wholesale.",
+  },
+  {
+    id: "spec-first", name: "Writing the Spec First", family: "With a model", heat: "high",
+    one: "A prompt is a specification, whether or not you wrote it like one.",
+    when: "Anything bigger than a function. The vaguer the ask, the more confidently wrong the answer.",
+    how: [
+      "State the inputs, the outputs, and what must not change. Three lines beats three paragraphs.",
+      "Name the failure cases up front. Models optimise for the case you described.",
+      "Put the spec in the repo, not only in the chat. The chat is gone tomorrow; the decision is not.",
+      "Re-read the spec against the result. Half of what looks like a wrong answer is an ambiguous ask.",
+    ],
+    pitfalls: [
+      "Iterating conversationally toward something you could have specified in one line.",
+      "Letting the generated code become the spec, so nobody can say what the intended behaviour was.",
+    ],
+    metric: "How often work is rejected for doing the wrong thing rather than doing it badly.",
+  },
+  {
+    id: "provenance", name: "Provenance", family: "With a model", heat: "medium",
+    one: "Knowing which lines nobody has actually read.",
+    when: "Any codebase where more than one person and one model are committing.",
+    how: [
+      "Say so in the commit message when a change was largely generated. Not for blame, for the next reader's calibration.",
+      "Review generated code hardest where mistakes are expensive: auth, money, migrations, anything that deletes.",
+      "Treat a large generated block with no tests as undocumented, because it is.",
+      "Licence matters: code suggested from training data can carry obligations nobody chose.",
+    ],
+    pitfalls: [
+      "A repo where nobody can tell which parts a person wrote. Every line looks equally trustworthy, so none of it is.",
+      "Recording provenance and never using it to decide where to look first.",
+    ],
+    metric: "Whether you can point at the riskiest unreviewed code in your repo today.",
+  },
+  {
+    id: "tests-contract", name: "Tests as the Contract", family: "With a model", heat: "high",
+    one: "The only part of the ask a model cannot talk its way around.",
+    when: "Whenever you are accepting code faster than you can read it.",
+    how: [
+      "Write the failing test yourself, then let it make the test pass. The test is the spec it cannot misread.",
+      "Never take the test and the implementation from the same run without reading the test.",
+      "One test per behaviour you actually care about. Two hundred generated assertions prove patience, not correctness.",
+      "Run them before you read the diff. A red suite saves you the reading.",
+    ],
+    pitfalls: [
+      "Tests that assert the implementation rather than the behaviour. They pass forever and catch nothing.",
+      "Coverage as the goal. Generated code makes coverage cheap and meaningless in one stroke.",
+    ],
+    metric: "Bugs caught by tests versus bugs caught in review or in production.",
+  },
   {
     id: "pairing", name: "Pair Programming", family: "Live", heat: "high",
     one: "Two people, one problem, one keyboard at a time.",
@@ -310,6 +411,14 @@ export const PLAYBOOK = [
    ═══════════════════════════════════════════════════════════════ */
 
 export const TOOLS = [
+  { cat: "Coding with a model", items: [
+    { name: "Claude Code", note: "Agentic CLI that edits files and runs commands in your repo. Strong across many files at once; you are trusting a loop you did not watch, so the diff is the review.", url: "https://claude.com/claude-code" },
+    { name: "Cursor", note: "An editor built around the model rather than bolted onto one. Excellent inline flow, and correspondingly easy to accept more than you read.", url: "https://cursor.com" },
+    { name: "GitHub Copilot", note: "The default, and now much more than autocomplete. Best where your repo conventions are already consistent, because it copies what it sees.", url: "https://github.com/features/copilot" },
+    { name: "aider", note: "Open-source CLI pair that commits each change separately, which makes generated work reviewable one step at a time. The best provenance story of the set.", url: "https://aider.chat" },
+    { name: "Cline", note: "Open-source agent inside VS Code. Shows each proposed command before running it, which is slower and much harder to sleepwalk through.", url: "https://cline.bot" },
+    { name: "Continue", note: "Open source, bring your own model. The one to reach for when the code cannot leave your own infrastructure.", url: "https://continue.dev" },
+  ]},
   { cat: "Live pairing", items: [
     { name: "VS Code Live Share", note: "Share your editor session, terminals and servers included. Free, and already installed for most teams.", url: "https://visualstudio.microsoft.com/services/live-share/" },
     { name: "Tuple", note: "Purpose-built remote pairing with very low latency. macOS-first, paid.", url: "https://tuple.app" },
@@ -400,13 +509,14 @@ export const COMMUNITY = "general";
    already knows that. Each claim is answered at length by a PLAYBOOK entry. */
 
 export const THESIS = {
-  head: "Most teams are not short of talent. They are short of the seams between people.",
+  head: "Most code is now written by a machine. The hard part moved to the seam.",
   body:
-    "Almost nothing hard gets built by one person any more, and almost none of the difficulty " +
-    "is in the individual work. It is in the handoffs — the review that sat for three days, the " +
-    "decision nobody wrote down, the context living in one person's head. Those are the seams, " +
-    "and they are learnable. This is what we have found holds up.",
-};
+    "The typing stopped being the bottleneck. What is scarce now is everything around it — " +
+    "deciding what to ask for, reading what came back, knowing which parts you would stake " +
+    "your name on, and keeping a team able to change code that nobody in the room has read. " +
+    "That is a collaboration problem wearing a new hat, and the old answers only half fit. " +
+    "This is what we have found holds up.",
+}
 
 export const MO = [
   {
@@ -544,6 +654,13 @@ export const COLLABS = [
 ];
 
 export const GLOSSARY = [
+  { term: "Vibe coding", def: "Describing what you want and accepting the code the model writes without reading it closely. Coined by Andrej Karpathy for throwaway work, and now used for the general practice, including on code that is very much not throwaway." },
+  { term: "Agentic coding", def: "Letting a model run its own loop: edit files, run commands, read the output, try again. Differs from autocomplete in that nobody watches each step, so the diff is the first thing a human sees." },
+  { term: "Review debt", def: "Code that is merged and running but that no human has read. Unlike technical debt it is invisible in the codebase, because it looks exactly like reviewed code." },
+  { term: "Provenance", def: "Which parts of a codebase were written by whom, human or model. It matters less for credit than for knowing where to look hardest when something breaks." },
+  { term: "Context window", def: "How much text a model can consider at once. The practical effect on a team is that it cannot hold your codebase in mind, so what you put in front of it is what it knows." },
+  { term: "Hallucinated dependency", def: "A confident import of a package that does not exist. Cheap to catch by running the code, and the origin of a supply-chain attack when somebody registers the invented name." },
+  { term: "Eval", def: "A repeatable test of a model's output quality, as distinct from a test of your code. Necessary once prompts are part of the product, because a prompt change is a behaviour change with no diff." },
   { term: "ADR", def: "Architecture Decision Record. A short doc capturing one decision, its context, and its consequences. Lives in the repo so the reasoning survives the people." },
   { term: "Async-first", def: "Defaulting to written, non-blocking communication. Meetings become the exception that needs justification, not the norm." },
   { term: "Blameless", def: "A postmortem stance where the question is what made the failure easy, not who caused it. Produces honest timelines; blame produces defensive ones." },
