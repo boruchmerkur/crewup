@@ -49,9 +49,14 @@ export const WIDGET_SOURCES = [
   { name: "Chrome Developers",  url: "https://developer.chrome.com/blog/feed.xml" },
   { name: "web.dev",            url: "https://web.dev/feed.xml" },
   { name: "MDN Blog",           url: "https://developer.mozilla.org/en-US/blog/rss.xml" },
-  { name: "Product Hunt",       url: "https://www.producthunt.com/feed" },
   { name: "dev.to · components",url: "https://dev.to/feed/tag/webcomponents" },
-  { name: "dev.to · css",       url: "https://dev.to/feed/tag/css" },
+
+  /* Product Hunt and one of the two dev.to tag feeds were removed: measured on
+     the live wire, dev.to supplied 5 of 13 blank cards and Product Hunt 3, and
+     asking /api/preview for them returns null — those pages genuinely carry no
+     preview image. No amount of retrying fetches a picture that is not there,
+     so the fix is which sources are in the list, not the fetching. One dev.to
+     feed stays: it is the only source here for component work. */
 
   // gallery — carries the entire visual load of this space
   { name: "r/unixporn",  url: "https://www.reddit.com/r/unixporn/.rss",  bucket: "gallery" },
